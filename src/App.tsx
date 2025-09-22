@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import CalendarView from "./components/CalenderView";
 import LoginCard from "./components/LoginCard";
-import { isValidEmail, validateUser } from "./utils/auth";
+import { authService } from "./utils/authService";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,16 +12,13 @@ export default function App() {
   const handleLogin = (email: string) => {
     setLoginError("");
 
-    if (!isValidEmail(email)) {
-      setLoginError("Please enter a valid email address");
-      return;
-    }
+    const result = authService.login(email);
 
-    if (validateUser(email)) {
+    if (result.success) {
       setUserEmail(email);
       setIsLoggedIn(true);
     } else {
-      setLoginError("User not found. Please check your email address.");
+      setLoginError(result.error || "Login failed");
     }
   };
 
