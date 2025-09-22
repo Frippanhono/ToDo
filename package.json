@@ -36,8 +36,14 @@
     }
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "styled-components": "^6.1.19"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.0.2",
@@ -71,11 +77,9 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-testing-library": "^5.5.1",
-    "husky": "^8.0.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^28.1.1",
     "jest-environment-jsdom": "^28.1.1",
-    "lint-staged": "^13.0.2",
     "prettier": "^2.7.1",
     "sort-package-json": "^1.57.0",
     "start-server-and-test": "^1.14.0",
