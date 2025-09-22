@@ -13,6 +13,7 @@
     "lint": "eslint . --ext .ts,.tsx --fix --ignore-path .gitignore",
     "prepare": "husky install",
     "serve": "npm run build && vite preview --port 3000",
+    "test": "npm run test:unit",
     "test:e2e": "start-server-and-test serve http://127.0.0.1:3000/ 'cypress open'",
     "test:e2e:ci": "start-server-and-test serve http://127.0.0.1:3000/ 'cypress run'",
     "test:unit": "jest --watch",
@@ -47,7 +48,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.1",
-    "@types/jest": "^28.1.3",
+    "@types/jest": "^28.1.8",
     "@types/node": "^18.0.0",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
@@ -79,7 +80,7 @@
     "prettier": "^2.7.1",
     "sort-package-json": "^1.57.0",
     "start-server-and-test": "^1.14.0",
-    "ts-jest": "^28.0.5",
+    "ts-jest": "^28.0.8",
     "typescript": "^4.7.4",
     "vite": "^2.9.12"
   }
