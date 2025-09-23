@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import * as styledComponents from "styled-components";
 
 import userTasksData from "../Data/user_tasks.json";
+import AddTaskCard from "./AddTaskCard";
 
 interface CalendarViewProps {
   userEmail: string;
@@ -16,6 +17,41 @@ export default function CalendarView({
   onLogout,
 }: CalendarViewProps) {
   const [events, setEvents] = useState<any[]>([]);
+
+  // --- Form-state för AddTaskCard ---
+  const [newTitle, setNewTitle] = useState("");
+  const [newDate, setNewDate] = useState(() =>
+    new Date().toISOString().slice(0, 10)
+  );
+  const [newTime, setNewTime] = useState("09:00");
+  const [newAllDay, setNewAllDay] = useState(false);
+
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    const title = newTitle.trim();
+    if (!title || !newDate) return;
+
+    const id = Date.now().toString();
+    const start = newAllDay || !newTime ? newDate : `${newDate}T${newTime}:00`;
+
+    const newEvent = {
+      id,
+      title,
+      start,
+      backgroundColor: "#007bff",
+      allDay: newAllDay || !newTime,
+    };
+
+    setEvents(prev => [...prev, newEvent]);
+
+    // nollställ inputs (behåll datum)
+    setNewTitle("");
+    setNewTime("09:00");
+    setNewAllDay(false);
+    setNewDate(new Date().toISOString().slice(0, 10));
+  };
+
+  const canSubmit = newTitle.trim().length > 0 && !!newDate;
 
   useEffect(() => {
     const currentUser = userTasksData.find(
@@ -46,6 +82,19 @@ export default function CalendarView({
         <LogoutButton onClick={onLogout}>Logout</LogoutButton>
       </Header>
 
+      <AddTaskCard
+        newTitle={newTitle}
+        setNewTitle={setNewTitle}
+        newDate={newDate}
+        setNewDate={setNewDate}
+        newTime={newTime}
+        setNewTime={setNewTime}
+        newAllDay={newAllDay}
+        setNewAllDay={setNewAllDay}
+        canSubmit={canSubmit}
+        handleAddTask={handleAddTask}
+      />
+
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin]}
         initialView="dayGridMonth"
@@ -63,6 +112,10 @@ export default function CalendarView({
           week: "Week",
           day: "Day",
         }}
+        /* --- Viktiga UI-förbättringar --- */
+        eventDisplay="block"
+        eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+        eventTextColor="#fff"
       />
     </Container>
   );
