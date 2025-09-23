@@ -1,4 +1,4 @@
-import { addTask, Task } from "./Task";
+import { addTask, Task } from "../AddTaskCard";
 
 describe("addTask", () => {
   it("ska skapa en ny uppgift", () => {
