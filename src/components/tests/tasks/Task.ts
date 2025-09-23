@@ -2,6 +2,7 @@ export interface Task {
   id: number;
   title: string;
   completed: boolean;
+  date: Date;
 }
 
 /**export function addTask(tasks: Task[], title: string): Task[] {
