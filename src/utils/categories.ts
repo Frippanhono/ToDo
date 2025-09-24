@@ -1,13 +1,6 @@
-export type CategoryKey =
-  | "none"
-  | "work"
-  | "home"
-  | "health"
-  | "family"
-  | "personal";
+export type CategoryKey = "work" | "home" | "health" | "family" | "personal";
 
 export const CATEGORY_LABELS: Record<CategoryKey, string> = {
-  none: "— Select category —",
   work: "Work / Studies",
   home: "Home / Household",
   health: "Health / Well-being",
@@ -16,7 +9,6 @@ export const CATEGORY_LABELS: Record<CategoryKey, string> = {
 };
 
 export const CATEGORY_COLORS: Record<CategoryKey, string> = {
-  none: "#9ca3af", // neutral grå (placeholder)
   work: "#2563eb", // blå
   home: "#10b981", // grön
   health: "#ef4444", // röd
@@ -25,7 +17,6 @@ export const CATEGORY_COLORS: Record<CategoryKey, string> = {
 };
 
 export const CATEGORY_OPTIONS: Array<{ key: CategoryKey; label: string }> = [
-  { key: "none", label: CATEGORY_LABELS.none },
   { key: "work", label: CATEGORY_LABELS.work },
   { key: "home", label: CATEGORY_LABELS.home },
   { key: "health", label: CATEGORY_LABELS.health },
