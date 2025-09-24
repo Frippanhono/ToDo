@@ -1,5 +1,6 @@
 import React from "react";
 import * as styledComponents from "styled-components";
+import { CategoryKey, CATEGORY_OPTIONS } from "../utils/categories";
 
 interface AddTaskCardProps {
   newTitle: string;
@@ -10,6 +11,11 @@ interface AddTaskCardProps {
   setNewTime: (value: string) => void;
   newAllDay: boolean;
   setNewAllDay: (value: boolean) => void;
+
+  /** kategori */
+  newCategory: CategoryKey;
+  setNewCategory: (value: CategoryKey) => void;
+
   canSubmit: boolean;
   handleAddTask: (e: React.FormEvent) => void;
 }
@@ -38,9 +44,29 @@ export default function AddTaskCard({
   setNewTime,
   newAllDay,
   setNewAllDay,
+  newCategory,
+  setNewCategory,
   canSubmit,
   handleAddTask,
 }: AddTaskCardProps) {
+  // Hjälpfunktion för att toggla All day och hantera tid
+  const toggleAllDay = () => {
+    const next = !newAllDay;
+    setNewAllDay(next);
+    if (next) {
+      // När All day slås PÅ: rensa tiden
+      if (newTime) setNewTime("");
+    }
+    // När All day slås AV: lämna tiden orörd (ingen default 09:00)
+  };
+
+  const onAllDayKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      toggleAllDay();
+    }
+  };
+
   return (
     <Card onSubmit={handleAddTask} aria-labelledby="addtask-heading">
       <CardHeader>
@@ -87,8 +113,39 @@ export default function AddTaskCard({
               setNewTime(e.target.value)
             }
             disabled={newAllDay}
+            // (placeholder syns inte i alla browsers för type="time", men skadar inte)
+            placeholder="—"
           />
-          {newAllDay}
+        </Field>
+
+        {/* Category */}
+        <Field>
+          <Label htmlFor="category">Category</Label>
+          <Select
+            id="category"
+            value={newCategory}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setNewCategory(e.target.value as CategoryKey)
+            }
+            // 'required' funkar bra – bara placeholdern har tomt värde ("")
+            required
+            aria-invalid={newCategory === ""} // markera ogiltigt enbart när placeholdern är vald
+          >
+            {/* Riktig placeholder – ej valbar */}
+            <option value="" disabled hidden>
+              Välj kategori…
+            </option>
+
+            {CATEGORY_OPTIONS.map(opt => (
+              <option
+                key={opt.key}
+                value={opt.key}
+                // TA BORT: disabled={opt.key === "none"}
+              >
+                {opt.label}
+              </option>
+            ))}
+          </Select>
         </Field>
 
         <Field>
@@ -97,15 +154,8 @@ export default function AddTaskCard({
             role="switch"
             aria-checked={newAllDay}
             tabIndex={0}
-            onClick={(e: React.MouseEvent<HTMLDivElement>) =>
-              setNewAllDay(!newAllDay)
-            }
-            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-              if (e.key === " " || e.key === "Enter") {
-                e.preventDefault();
-                setNewAllDay(!newAllDay);
-              }
-            }}
+            onClick={toggleAllDay}
+            onKeyDown={onAllDayKeyDown}
             $checked={newAllDay}
             title="Toggle all day"
           >
@@ -150,11 +200,12 @@ const CardHeader = styled.div`
   }
 `;
 
+/* +1 kolumn för Category */
 const Row = styled.div`
   display: grid;
-  grid-template-columns: 1.3fr 0.8fr 0.8fr auto;
-  column-gap: 40px; /* mer luft mellan Title / Date / Time / All day */
-  row-gap: 16px; /* om det bryts till flera rader på mindre skärmar */
+  grid-template-columns: 1.1fr 0.8fr 0.8fr 1fr auto;
+  column-gap: 40px;
+  row-gap: 16px;
 
   @media (max-width: 920px) {
     grid-template-columns: 1fr 1fr;
@@ -208,6 +259,24 @@ const Input = styled.input`
     background: #f9fafb;
     color: #6b7280;
     cursor: not-allowed;
+  }
+`;
+
+const Select = styled.select`
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  transition: box-shadow 120ms ease, border-color 120ms ease;
+
+  &:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   }
 `;
 

@@ -6,6 +6,7 @@ import * as styledComponents from "styled-components";
 
 import userTasksData from "../Data/user_tasks.json";
 import AddTaskCard from "./AddTaskCard";
+import { CategoryKey, CATEGORY_COLORS } from "../utils/categories";
 
 interface CalendarViewProps {
   userEmail: string;
@@ -23,13 +24,16 @@ export default function CalendarView({
   const [newDate, setNewDate] = useState(() =>
     new Date().toISOString().slice(0, 10)
   );
-  const [newTime, setNewTime] = useState("09:00");
-  const [newAllDay, setNewAllDay] = useState(false);
+  const [newTime, setNewTime] = useState("");
+  const [newAllDay, setNewAllDay] = useState(true);
+  const [newCategory, setNewCategory] = useState<CategoryKey>(
+    "" as CategoryKey
+  ); // default none
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const title = newTitle.trim();
-    if (!title || !newDate) return;
+    if (!title || !newDate || newCategory === "none") return;
 
     const id = Date.now().toString();
     const start = newAllDay || !newTime ? newDate : `${newDate}T${newTime}:00`;
@@ -38,36 +42,43 @@ export default function CalendarView({
       id,
       title,
       start,
-      backgroundColor: "#007bff",
+      backgroundColor: CATEGORY_COLORS[newCategory], // färgen = kategori
       allDay: newAllDay || !newTime,
+      extendedProps: { category: newCategory }, // spara kategori i eventet
     };
 
     setEvents(prev => [...prev, newEvent]);
 
-    // nollställ inputs (behåll datum)
+    // reset
     setNewTitle("");
-    setNewTime("09:00");
-    setNewAllDay(false);
+    setNewTime("");
+    setNewAllDay(true);
     setNewDate(new Date().toISOString().slice(0, 10));
+    setNewCategory("none"); // tillbaka till placeholder
   };
 
-  const canSubmit = newTitle.trim().length > 0 && !!newDate;
+  const canSubmit =
+    newTitle.trim().length > 0 && !!newDate && newCategory !== "none";
 
   useEffect(() => {
     const currentUser = userTasksData.find(
-      user => user.email.toLowerCase() === userEmail.toLowerCase()
+      (user: any) => user.email.toLowerCase() === userEmail.toLowerCase()
     );
 
     if (currentUser) {
-      const calendarEvents = currentUser.tasks.map(task => ({
-        id: task.id.toString(),
-        title: task.title,
-        start: task.allDay
-          ? task.date
-          : `${task.date}T${task.time || "09:00"}:00`,
-        backgroundColor: task.completed ? "#28a745" : "#007bff",
-        allDay: task.allDay || false,
-      }));
+      const calendarEvents = currentUser.tasks.map((task: any) => {
+        const category: CategoryKey = (task.category as CategoryKey) ?? "none";
+        return {
+          id: task.id.toString(),
+          title: task.title,
+          start: task.allDay
+            ? task.date
+            : `${task.date}T${task.time || "09:00"}:00`,
+          backgroundColor: CATEGORY_COLORS[category],
+          allDay: task.allDay || false,
+          extendedProps: { category },
+        };
+      });
       setEvents(calendarEvents);
     }
   }, [userEmail]);
@@ -91,6 +102,8 @@ export default function CalendarView({
         setNewTime={setNewTime}
         newAllDay={newAllDay}
         setNewAllDay={setNewAllDay}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
         canSubmit={canSubmit}
         handleAddTask={handleAddTask}
       />
@@ -112,7 +125,6 @@ export default function CalendarView({
           week: "Week",
           day: "Day",
         }}
-        /* --- Viktiga UI-förbättringar --- */
         eventDisplay="block"
         eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
         eventTextColor="#fff"
