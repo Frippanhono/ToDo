@@ -1,13 +1,10 @@
-import {
-  type DatedTask,
-  countAll,
-  countCompleted,
-  countTodo,
-} from "@/utils/Tasklist";
+import { Task } from "@/components/tests/tasks/Task";
+import { countAll, countCompleted, countTodo } from "@/utils/Tasklist";
 
-const make = (overrides: Partial<DatedTask> = {}): DatedTask => ({
+const make = (overrides: Partial<Task> = {}): Task => ({
   id: 1,
   title: "Default",
+  category: "none",
   completed: false,
   date: new Date("2025-09-23T09:00:00Z"),
   ...overrides,

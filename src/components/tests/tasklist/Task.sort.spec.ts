@@ -1,13 +1,10 @@
-import {
-  type DatedTask,
-  sortByDateAsc,
-  sortByDateDesc,
-  sortByTitle,
-} from "@/utils/Tasklist";
+import { Task } from "@/components/tests/tasks/Task";
+import { sortByDateAsc, sortByDateDesc, sortByTitle } from "@/utils/Tasklist";
 
-const make = (overrides: Partial<DatedTask> = {}): DatedTask => ({
+const make = (overrides: Partial<Task> = {}): Task => ({
   id: 1,
   title: "Aplpha",
+  category: "none",
   completed: false,
   date: new Date("2025-09-23T09:00:00Z"),
   ...overrides,
@@ -15,7 +12,7 @@ const make = (overrides: Partial<DatedTask> = {}): DatedTask => ({
 
 describe("sortByTitle", () => {
   it("sorterar alfabetiskt (sv)", () => {
-    const input: DatedTask[] = [
+    const input: Task[] = [
       make({ id: 2, title: "Handla" }),
       make({ id: 1, title: "Städa" }),
       make({ id: 3, title: "Tvätta" }),

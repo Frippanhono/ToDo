@@ -1,8 +1,10 @@
-import { type DatedTask, filterCompleted, filterTodo } from "@/utils/Tasklist";
+import { Task } from "@/components/tests/tasks/Task";
+import { filterCompleted, filterTodo } from "@/utils/Tasklist";
 
-const make = (overrides: Partial<DatedTask> = {}): DatedTask => ({
+const make = (overrides: Partial<Task> = {}): Task => ({
   id: 1,
   title: "Default",
+  category: "none",
   completed: false,
   date: new Date("2025-09-23T09:00:00Z"),
   ...overrides,
@@ -10,7 +12,7 @@ const make = (overrides: Partial<DatedTask> = {}): DatedTask => ({
 
 describe("filterCompleted", () => {
   it("filtrerar ut de färdiga uppgifterna", () => {
-    const input: DatedTask[] = [
+    const input: Task[] = [
       make({ id: 2, title: "Handla", completed: true }),
       make({ id: 1, title: "Städa", completed: true }),
       make({ id: 3, title: "Tvätta", completed: false }),
@@ -30,7 +32,7 @@ describe("filterCompleted", () => {
 
 describe("filterTodo", () => {
   it("filtrerar ut de uppgifterna som ska göras", () => {
-    const input: DatedTask[] = [
+    const input: Task[] = [
       make({ id: 2, title: "Handla", completed: false }),
       make({ id: 1, title: "Städa", completed: true }),
       make({ id: 3, title: "Tvätta", completed: false }),
