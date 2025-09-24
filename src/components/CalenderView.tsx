@@ -1,7 +1,7 @@
 import dayGridPlugin from "@fullcalendar/daygrid";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as styledComponents from "styled-components";
 
 import userTasksData from "../Data/user_tasks.json";
@@ -9,6 +9,7 @@ import AddTaskCard from "./AddTaskCard";
 import { CategoryKey, CATEGORY_COLORS } from "../utils/categories";
 
 import TaskOverlay from "./TaskOverlay"; 
+import SortFilterBar, { SortMode, StatusFilter } from "./SortFilterBar";
 
 interface CalendarViewProps {
   userEmail: string;
@@ -32,13 +33,38 @@ export default function CalendarView({
     "" as CategoryKey
   ); // default none
 
-   const [selectedEvent, setSelectedEvent] = useState<{
+  const [selectedEvent, setSelectedEvent] = useState<{
     id: string;
     title: string;
     start: string;
     allDay: boolean;
     category: CategoryKey;
-  } | null>(null); // ADDED
+  } | null>(null);
+
+  const [activeCategory, setActiveCategory] = useState<CategoryKey | "all">(
+    "all"
+  );
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+   const visibleEvents = useMemo(() => {
+    let list = events;
+
+    if (activeCategory !== "all") {
+      list = list.filter(
+        (e: any) => e?.extendedProps?.category === activeCategory
+      );
+    }
+
+    if (statusFilter !== "all") {
+      const wantDone = statusFilter === "completed";
+      list = list.filter(
+        (e: any) => Boolean(e?.extendedProps?.done) === wantDone
+      );
+    }
+
+    return list;
+  }, [events, activeCategory, statusFilter]);
+
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,6 +184,12 @@ export default function CalendarView({
         canSubmit={canSubmit}
         handleAddTask={handleAddTask}
       />
+      <SortFilterBar
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+      />
 
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin]}
@@ -167,7 +199,7 @@ export default function CalendarView({
           center: "title",
           right: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
-        events={events}
+        events={visibleEvents}
         height="auto"
         locale="en"
         buttonText={{
