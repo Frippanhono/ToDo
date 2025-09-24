@@ -8,6 +8,8 @@ import userTasksData from "../Data/user_tasks.json";
 import AddTaskCard from "./AddTaskCard";
 import { CategoryKey, CATEGORY_COLORS } from "../utils/categories";
 
+import TaskOverlay from "./TaskOverlay"; 
+
 interface CalendarViewProps {
   userEmail: string;
   onLogout: () => void;
@@ -30,6 +32,14 @@ export default function CalendarView({
     "" as CategoryKey
   ); // default none
 
+   const [selectedEvent, setSelectedEvent] = useState<{
+    id: string;
+    title: string;
+    start: string;
+    allDay: boolean;
+    category: CategoryKey;
+  } | null>(null); // ADDED
+
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const title = newTitle.trim();
@@ -44,7 +54,7 @@ export default function CalendarView({
       start,
       backgroundColor: CATEGORY_COLORS[newCategory], // färgen = kategori
       allDay: newAllDay || !newTime,
-      extendedProps: { category: newCategory }, // spara kategori i eventet
+      extendedProps: { category: newCategory, done: false }, // spara kategori i eventet
     };
 
     setEvents(prev => [...prev, newEvent]);
@@ -80,8 +90,49 @@ export default function CalendarView({
         };
       });
       setEvents(calendarEvents);
+    } else {
+      setEvents([]);
     }
   }, [userEmail]);
+
+  const handleEventClick = (info: any) => {
+    const e = info.event;
+    setSelectedEvent({
+      id: e.id,
+      title: e.title,
+      start: e.startStr,
+      allDay: e.allDay,
+      category: (e.extendedProps?.category || "none") as CategoryKey,
+    });
+  };
+
+  const saveEvent = (id: string, patch: { title?: string }) => {
+    setEvents(prev =>
+      prev.map((ev: any) =>
+        ev.id === id ? { ...ev, title: patch.title ?? ev.title } : ev
+      )
+    );
+  };
+
+  const toggleComplete = (id: string) => {
+    setEvents(prev =>
+      prev.map((ev: any) => {
+        if (ev.id !== id) return ev;
+        const wasDone = ev.extendedProps?.done === true;
+        const done = !wasDone;
+        const category: CategoryKey = ev.extendedProps?.category ?? "none";
+        return {
+          ...ev,
+          backgroundColor: done ? "#9ca3af" : CATEGORY_COLORS[category], // grå när klar
+          extendedProps: { ...ev.extendedProps, done },
+        };
+      })
+    );
+  };
+
+  const deleteEvent = (id: string) => {
+    setEvents(prev => prev.filter((ev: any) => ev.id !== id));
+  };
 
   return (
     <Container>
@@ -128,7 +179,31 @@ export default function CalendarView({
         eventDisplay="block"
         eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
         eventTextColor="#fff"
+        eventClick={handleEventClick}
+        eventDidMount={arg => {
+          // ADDED: tona ner & strike-through om done
+          if (arg.event.extendedProps?.done) {
+            arg.el.style.textDecoration = "line-through";
+            arg.el.style.opacity = "0.8";
+          }
+        }}
       />
+      {/* ADDED: overlay mountas sist i trädet */}
+      {selectedEvent && (
+        <TaskOverlay
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          onSave={patch => {
+            saveEvent(selectedEvent.id, patch);
+            setSelectedEvent(null);
+          }}
+          onToggleComplete={() => toggleComplete(selectedEvent.id)}
+          onDelete={() => {
+            deleteEvent(selectedEvent.id);
+            setSelectedEvent(null);
+          }}
+        />
+      )}
     </Container>
   );
 }
