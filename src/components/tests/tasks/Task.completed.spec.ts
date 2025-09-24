@@ -1,8 +1,20 @@
 import { type Task, setTaskCompleted, toggleTaskCompleted } from "./Task";
 
 const fresh = (): Task[] => [
-  { id: 1, title: "Köp mjölk", completed: false },
-  { id: 2, title: "Städa", completed: true },
+  {
+    id: 1,
+    title: "Köp mjölk",
+    category: "Shop", //lagt till category och date - inget annat ändrat
+    date: new Date("2025-09-24"),
+    completed: false,
+  },
+  {
+    id: 2,
+    title: "Städa",
+    category: "Shop", //lagt till category och date - inget annat ändrat
+    date: new Date("2025-09-24"),
+    completed: true,
+  },
 ];
 
 describe("toggleTaskCompleted", () => {

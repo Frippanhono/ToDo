@@ -1,9 +1,27 @@
 import { type Task, deleteTask } from "./Task";
 
 const base = (): Task[] => [
-  { id: 1, title: "Köp mjölk", completed: false },
-  { id: 2, title: "Städa", completed: true },
-  { id: 3, title: "Diska", completed: false },
+  {
+    id: 1,
+    title: "Köp mjölk",
+    category: "Shop",
+    date: new Date("2025-09-24"),
+    completed: false,
+  },
+  {
+    id: 2,
+    title: "Städa",
+    category: "Shop", //lagt till category och date - inget annat ändrat
+    date: new Date("2025-09-24"),
+    completed: true,
+  },
+  {
+    id: 3,
+    title: "Diska",
+    category: "Shop", //lagt till category och date - inget annat ändrat
+    date: new Date("2025-09-24"),
+    completed: false,
+  },
 ];
 
 describe("deleteTask", () => {
