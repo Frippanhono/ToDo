@@ -33,7 +33,9 @@ export default function SortFilterBar({
     <Bar>
       <Select
         value={activeCategory}
-        onChange={e => onCategoryChange(e.target.value as any)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          onCategoryChange(e.target.value as CategoryKey | "all")
+        }
       >
         <option value="all">All categories</option>
         {CATEGORY_OPTIONS.map(o => (
@@ -45,7 +47,9 @@ export default function SortFilterBar({
 
       <Select
         value={statusFilter}
-        onChange={e => onStatusChange(e.target.value as any)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          onStatusChange(e.target.value as StatusFilter)
+        }
       >
         <option value="all">All status</option>
         <option value="todo">Todo</option>
