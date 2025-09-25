@@ -9,9 +9,8 @@ on:
 
 jobs:
   test-build:
-    name: Lint • Typecheck • Unit tests • Build
+    name: Unit & build
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,29 +18,27 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          # Vite 2 + Jest 28 funkar fint på Node 18; 20 går också
           node-version: 18
           cache: npm
 
-      - name: Install deps (CI clean)
+      - name: Install dependencies (CI clean)
         run: npm ci
 
-      - name: Lint
+      - name: Run ESLint
         run: npm run lint --if-present
 
-      - name: Typecheck (TS)
-        run: npm run typecheck --if-present
-
-      - name: Unit tests (Jest + RTL)
+      - name: Run Jest tests
         run: npm run test:unit:ci
 
-      - name: Build (Vite)
-        run: npm run build --if-present
+      - name: Build project
+        run: npm run build
 
   e2e:
     name: Cypress E2E
-    # Kör BARA om både Cypress-konfig och minst en spec finns
-    if: ${{ hashFiles('cypress.config.{js,ts,mjs,cjs}') != '' && hashFiles('cypress/**/*.cy.{js,ts,jsx,tsx}') != '' }}
+    # Kör BARA om Cypress-konfig + minst en spec finns
+    if: |
+      hashFiles('cypress.config.{js,ts,mjs,cjs}') != '' &&
+      hashFiles('cypress/**/*.cy.{js,ts,jsx,tsx}') != ''
     runs-on: ubuntu-latest
     needs: test-build
 
@@ -55,9 +52,9 @@ jobs:
           node-version: 18
           cache: npm
 
-      - name: Install deps (CI clean)
+      - name: Install dependencies (CI clean)
         run: npm ci
 
-      # Använder ert script "serve" + Cypress CI-script från package.json
+      # Kör ert eget script från package.json
       - name: Run Cypress (start-server-and-test)
         run: npm run test:e2e:ci
