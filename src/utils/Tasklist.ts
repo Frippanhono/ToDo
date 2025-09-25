@@ -29,7 +29,7 @@ export function updateTask(
   const updated = tasks.map(task => {
     if (task.id !== id) return task;
 
-    let next: Task = { ...task, ...patch };
+    const next: Task = { ...task, ...patch };
 
     // --- Trimma title om den finns i patch ---
     if (patch.title !== undefined) {
