@@ -53,7 +53,12 @@ export default function TaskOverlay({
         </BadgeRow>
 
         <Label>Titel</Label>
-        <Input value={title} onChange={e => setTitle(e.target.value)} />
+        <Input
+          value={title}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setTitle(e.target.value)
+          }
+/>
 
         <Actions>
           <LeftGroup>
