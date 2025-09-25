@@ -1,5 +1,9 @@
-import { Task } from "@/components/tests/tasks/Task";
-import { sortByDateAsc, sortByDateDesc, sortByTitle } from "@/utils/Tasklist";
+import {
+  sortByDateAsc,
+  sortByDateDesc,
+  sortByTitle,
+  Task,
+} from "@/utils/Tasklist";
 
 const make = (overrides: Partial<Task> = {}): Task => ({
   id: 1,

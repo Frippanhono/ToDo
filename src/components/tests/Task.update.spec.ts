@@ -1,4 +1,4 @@
-import { type Task, updateTask } from "./Task";
+import { type Task, updateTask } from "@/utils/Tasklist";
 
 const base = (): Task[] => [
   {
