@@ -35,8 +35,6 @@ jobs:
 
   e2e:
     name: Cypress E2E
-    # Kör BARA om Cypress-konfig + minst en spec finns
-    if: ${{ hashFiles('cypress.config.{js,ts,mjs,cjs}') != '' && hashFiles('cypress/**/*.cy.{js,ts,jsx,tsx}') != '' }}
     runs-on: ubuntu-latest
     needs: test-build
     steps:
