@@ -36,12 +36,9 @@ jobs:
   e2e:
     name: Cypress E2E
     # Kör BARA om Cypress-konfig + minst en spec finns
-    if: |
-      hashFiles('cypress.config.{js,ts,mjs,cjs}') != '' &&
-      hashFiles('cypress/**/*.cy.{js,ts,jsx,tsx}') != ''
+    if: ${{ hashFiles('cypress.config.{js,ts,mjs,cjs}') != '' && hashFiles('cypress/**/*.cy.{js,ts,jsx,tsx}') != '' }}
     runs-on: ubuntu-latest
     needs: test-build
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,6 +52,5 @@ jobs:
       - name: Install dependencies (CI clean)
         run: npm ci
 
-      # Kör ert eget script från package.json
       - name: Run Cypress (start-server-and-test)
         run: npm run test:e2e:ci
