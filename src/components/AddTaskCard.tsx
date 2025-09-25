@@ -133,15 +133,11 @@ export default function AddTaskCard({
           >
             {/* Riktig placeholder – ej valbar */}
             <option value="" disabled hidden>
-              Välj kategori…
+              Select category…
             </option>
 
             {CATEGORY_OPTIONS.map(opt => (
-              <option
-                key={opt.key}
-                value={opt.key}
-                // TA BORT: disabled={opt.key === "none"}
-              >
+              <option key={opt.key} value={opt.key}>
                 {opt.label}
               </option>
             ))}

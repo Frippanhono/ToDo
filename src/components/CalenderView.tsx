@@ -8,7 +8,7 @@ import userTasksData from "../Data/user_tasks.json";
 import AddTaskCard from "./AddTaskCard";
 import { CategoryKey, CATEGORY_COLORS } from "../utils/categories";
 
-import TaskOverlay from "./TaskOverlay"; 
+import TaskOverlay from "./TaskOverlay";
 import SortFilterBar, { SortMode, StatusFilter } from "./SortFilterBar";
 
 interface CalendarViewProps {
@@ -46,7 +46,7 @@ export default function CalendarView({
   );
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-   const visibleEvents = useMemo(() => {
+  const visibleEvents = useMemo(() => {
     let list = events;
 
     if (activeCategory !== "all") {
@@ -65,22 +65,23 @@ export default function CalendarView({
     return list;
   }, [events, activeCategory, statusFilter]);
 
-
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const title = newTitle.trim();
-    if (!title || !newDate || newCategory === "none") return;
+    if (!title || !newDate || newCategory === "") return;
 
     const id = Date.now().toString();
     const start = newAllDay || !newTime ? newDate : `${newDate}T${newTime}:00`;
+
+    const cat = newCategory as Exclude<CategoryKey, "none">;
 
     const newEvent = {
       id,
       title,
       start,
-      backgroundColor: CATEGORY_COLORS[newCategory], // färgen = kategori
+      backgroundColor: CATEGORY_COLORS[cat],
       allDay: newAllDay || !newTime,
-      extendedProps: { category: newCategory, done: false }, // spara kategori i eventet
+      extendedProps: { category: cat, done: false },
     };
 
     setEvents(prev => [...prev, newEvent]);
@@ -90,11 +91,12 @@ export default function CalendarView({
     setNewTime("");
     setNewAllDay(true);
     setNewDate(new Date().toISOString().slice(0, 10));
-    setNewCategory("none"); // tillbaka till placeholder
+    setNewCategory("" as CategoryKey); // tillbaka till placeholder
   };
 
+  // canSubmit – kräv vald kategori
   const canSubmit =
-    newTitle.trim().length > 0 && !!newDate && newCategory !== "none";
+    newTitle.trim().length > 0 && !!newDate && newCategory !== "";
 
   useEffect(() => {
     const currentUser = userTasksData.find(
