@@ -1,5 +1,4 @@
-import { Task } from "@/components/tests/tasks/Task";
-import { filterCompleted, filterTodo } from "@/utils/Tasklist";
+import { filterCompleted, filterTodo, Task } from "@/utils/Tasklist";
 
 const make = (overrides: Partial<Task> = {}): Task => ({
   id: 1,

@@ -1,4 +1,8 @@
-import { type Task, setTaskCompleted, toggleTaskCompleted } from "./Task";
+import {
+  type Task,
+  setTaskCompleted,
+  toggleTaskCompleted,
+} from "@/utils/Tasklist";
 
 const fresh = (): Task[] => [
   {

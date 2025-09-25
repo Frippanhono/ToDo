@@ -1,4 +1,4 @@
-import { type Task, deleteTask } from "./Task";
+import { type Task, deleteTask } from "@/utils/Tasklist";
 
 const base = (): Task[] => [
   {
