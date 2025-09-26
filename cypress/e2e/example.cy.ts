@@ -1,7 +1,7 @@
 describe("App start", () => {
-  it("shows the calendar title", () => {
+  it("shows the login title", () => {
     cy.visit("/");
-    cy.get('[data-testid="calendar-title"]').should("be.visible");
+    cy.get('[data-testid="login-title"]').should("be.visible");
   });
 });
 
