@@ -172,7 +172,7 @@ export default function CalendarView({
     <Container>
       <Header>
         <div>
-          <h1>📅 Calendar</h1>
+          <h1 data-testid="calendar-title">📅 Calendar</h1>
           <p>{userEmail}</p>
         </div>
         <LogoutButton onClick={onLogout}>Logout</LogoutButton>

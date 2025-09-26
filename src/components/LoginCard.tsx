@@ -40,7 +40,7 @@ export default function LoginCardComponent({
   return (
     <Container>
       <LoginCard>
-        <Title>Login</Title>
+        <Title data-testid="login-title">Login</Title>
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <Label htmlFor="email">Email</Label>
