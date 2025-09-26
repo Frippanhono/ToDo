@@ -9,7 +9,7 @@ import AddTaskCard from "./AddTaskCard";
 import { CategoryKey, CATEGORY_COLORS } from "../utils/categories";
 
 import TaskOverlay from "./TaskOverlay";
-import SortFilterBar, { SortMode, StatusFilter } from "./SortFilterBar";
+import SortFilterBar, { StatusFilter } from "./SortFilterBar";
 
 interface CalendarViewProps {
   userEmail: string;
@@ -29,9 +29,7 @@ export default function CalendarView({
   );
   const [newTime, setNewTime] = useState("");
   const [newAllDay, setNewAllDay] = useState(true);
-  const [newCategory, setNewCategory] = useState<CategoryKey>(
-    "" as CategoryKey
-  ); // default none
+  const [newCategory, setNewCategory] = useState<CategoryKey>("work"); // default: alltid giltig
 
   const [selectedEvent, setSelectedEvent] = useState<{
     id: string;
@@ -65,15 +63,19 @@ export default function CalendarView({
     return list;
   }, [events, activeCategory, statusFilter]);
 
+  const isValidCategory = (val: unknown): val is CategoryKey =>
+    typeof val === "string" &&
+    Object.prototype.hasOwnProperty.call(CATEGORY_COLORS, val);
+
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const title = newTitle.trim();
-    if (!title || !newDate || newCategory === "") return;
+    if (!title || !newDate) return;
 
     const id = Date.now().toString();
     const start = newAllDay || !newTime ? newDate : `${newDate}T${newTime}:00`;
 
-    const cat = newCategory as Exclude<CategoryKey, "none">;
+    const cat: CategoryKey = newCategory;
 
     const newEvent = {
       id,
@@ -91,12 +93,11 @@ export default function CalendarView({
     setNewTime("");
     setNewAllDay(true);
     setNewDate(new Date().toISOString().slice(0, 10));
-    setNewCategory("" as CategoryKey); // tillbaka till placeholder
+    setNewCategory("work"); // återställ till giltig default
   };
 
-  // canSubmit – kräv vald kategori
-  const canSubmit =
-    newTitle.trim().length > 0 && !!newDate && newCategory !== "";
+  // canSubmit – kräver titel och datum (kategori är alltid satt)
+  const canSubmit = newTitle.trim().length > 0 && !!newDate;
 
   useEffect(() => {
     const currentUser = userTasksData.find(
@@ -105,7 +106,8 @@ export default function CalendarView({
 
     if (currentUser) {
       const calendarEvents = currentUser.tasks.map((task: any) => {
-        const category: CategoryKey = (task.category as CategoryKey) ?? "none";
+        const raw = task.category as string | undefined;
+        const category: CategoryKey = isValidCategory(raw) ? raw : "personal"; // giltig fallback
         return {
           id: task.id.toString(),
           title: task.title,
@@ -130,7 +132,7 @@ export default function CalendarView({
       title: e.title,
       start: e.startStr,
       allDay: e.allDay,
-      category: (e.extendedProps?.category || "none") as CategoryKey,
+      category: e.extendedProps?.category as CategoryKey,
     });
   };
 
@@ -148,7 +150,11 @@ export default function CalendarView({
         if (ev.id !== id) return ev;
         const wasDone = ev.extendedProps?.done === true;
         const done = !wasDone;
-        const category: CategoryKey = ev.extendedProps?.category ?? "none";
+        const category: CategoryKey = isValidCategory(
+          ev.extendedProps?.category
+        )
+          ? (ev.extendedProps.category as CategoryKey)
+          : "personal";
         return {
           ...ev,
           backgroundColor: done ? "#9ca3af" : CATEGORY_COLORS[category], // grå när klar
@@ -215,14 +221,14 @@ export default function CalendarView({
         eventTextColor="#fff"
         eventClick={handleEventClick}
         eventDidMount={arg => {
-          // ADDED: tona ner & strike-through om done
+          // tona ner & strike-through om done
           if (arg.event.extendedProps?.done) {
             arg.el.style.textDecoration = "line-through";
             arg.el.style.opacity = "0.8";
           }
         }}
       />
-      {/* ADDED: overlay mountas sist i trädet */}
+
       {selectedEvent && (
         <TaskOverlay
           event={selectedEvent}

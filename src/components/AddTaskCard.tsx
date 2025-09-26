@@ -113,7 +113,6 @@ export default function AddTaskCard({
               setNewTime(e.target.value)
             }
             disabled={newAllDay}
-            // (placeholder syns inte i alla browsers för type="time", men skadar inte)
             placeholder="—"
           />
         </Field>
@@ -127,15 +126,9 @@ export default function AddTaskCard({
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setNewCategory(e.target.value as CategoryKey)
             }
-            // 'required' funkar bra – bara placeholdern har tomt värde ("")
             required
-            aria-invalid={newCategory === ""} // markera ogiltigt enbart när placeholdern är vald
+            aria-invalid={false}
           >
-            {/* Riktig placeholder – ej valbar */}
-            <option value="" disabled hidden>
-              Select category…
-            </option>
-
             {CATEGORY_OPTIONS.map(opt => (
               <option key={opt.key} value={opt.key}>
                 {opt.label}
