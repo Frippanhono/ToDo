@@ -23,6 +23,8 @@ jobs:
 
       - name: Install dependencies (CI clean)
         run: npm ci
+        env:
+          HUSKY: 0
 
       - name: Run ESLint
         run: npm run lint --if-present
@@ -49,6 +51,8 @@ jobs:
 
       - name: Install dependencies (CI clean)
         run: npm ci
+        env:
+          HUSKY: 0
 
       - name: Run Cypress (start-server-and-test)
         run: npm run test:e2e:ci
