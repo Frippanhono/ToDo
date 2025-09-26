@@ -1,6 +1,7 @@
 import React from "react";
 import * as styledComponents from "styled-components";
-import { CategoryKey, CATEGORY_OPTIONS } from "../utils/categories";
+
+import { CATEGORY_OPTIONS, CategoryKey } from "../utils/categories";
 
 interface AddTaskCardProps {
   newTitle: string;
@@ -12,7 +13,6 @@ interface AddTaskCardProps {
   newAllDay: boolean;
   setNewAllDay: (value: boolean) => void;
 
-  /** kategori */
   newCategory: CategoryKey;
   setNewCategory: (value: CategoryKey) => void;
 
@@ -68,7 +68,7 @@ export default function AddTaskCard({
   };
 
   return (
-    <Card onSubmit={handleAddTask} aria-labelledby="addtask-heading">
+    <Card aria-labelledby="addtask-heading" onSubmit={handleAddTask}>
       <CardHeader>
         <h3 id="addtask-heading">Add Task</h3>
       </CardHeader>
@@ -77,27 +77,27 @@ export default function AddTaskCard({
         <Field>
           <Label htmlFor="title">Title</Label>
           <Input
+            required
             id="title"
             type="text"
             value={newTitle}
+            placeholder="Enter a title…"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setNewTitle(e.target.value)
             }
-            placeholder="Enter a title…"
-            required
           />
         </Field>
 
         <Field>
           <Label htmlFor="date">Date</Label>
           <Input
+            required
             id="date"
             type="date"
             value={newDate}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setNewDate(e.target.value)
             }
-            required
           />
         </Field>
 
@@ -109,12 +109,12 @@ export default function AddTaskCard({
             id="time"
             type="time"
             value={newTime}
+            disabled={newAllDay}
+            placeholder="—"
+            // (placeholder syns inte i alla browsers för type="time", men skadar inte)
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setNewTime(e.target.value)
             }
-            disabled={newAllDay}
-            // (placeholder syns inte i alla browsers för type="time", men skadar inte)
-            placeholder="—"
           />
         </Field>
 
@@ -122,25 +122,22 @@ export default function AddTaskCard({
         <Field>
           <Label htmlFor="category">Category</Label>
           <Select
+            required
             id="category"
             value={newCategory}
+            aria-invalid={false}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setNewCategory(e.target.value as CategoryKey)
-            }
-            // 'required' funkar bra – bara placeholdern har tomt värde ("")
-            required
-            aria-invalid={newCategory === ""} // markera ogiltigt enbart när placeholdern är vald
+            } // <-- ändrat
           >
-            {/* Riktig placeholder – ej valbar */}
-            <option value="" disabled hidden>
-              Select category…
-            </option>
-
-            {CATEGORY_OPTIONS.map(opt => (
-              <option key={opt.key} value={opt.key}>
-                {opt.label}
-              </option>
-            ))}
+            {CATEGORY_OPTIONS
+              // om CATEGORY_OPTIONS råkar innehålla "none", visa inte den i listan
+              .filter(opt => opt.key !== ("none" as CategoryKey))
+              .map(opt => (
+                <option key={opt.key} value={opt.key}>
+                  {opt.label}
+                </option>
+              ))}
           </Select>
         </Field>
 
@@ -150,10 +147,10 @@ export default function AddTaskCard({
             role="switch"
             aria-checked={newAllDay}
             tabIndex={0}
-            onClick={toggleAllDay}
-            onKeyDown={onAllDayKeyDown}
             $checked={newAllDay}
             title="Toggle all day"
+            onClick={toggleAllDay}
+            onKeyDown={onAllDayKeyDown}
           >
             <SwitchThumb $checked={newAllDay} />
           </Switch>
