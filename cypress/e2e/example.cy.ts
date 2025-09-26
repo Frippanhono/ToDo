@@ -1,7 +1,7 @@
 describe("App start", () => {
   it("shows the calendar title", () => {
     cy.visit("/");
-    cy.contains("h1", "Calendar").should("be.visible");
+    cy.contains('[data-testid="calendar-title"]').should("be.visible");
   });
 });
 
