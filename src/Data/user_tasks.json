@@ -8,7 +8,7 @@
         "title": "Buy groceries",
         "description": "Go to the supermarket and buy food",
         "completed": false,
-        "date": "2024-09-23",
+        "date": "2025-09-23",
         "time": "10:00"
       },
       {
@@ -16,7 +16,7 @@
         "title": "Send report",
         "description": "Send the monthly report to the boss",
         "completed": true,
-        "date": "2024-09-24",
+        "date": "2025-09-24",
         "time": "14:00"
       },
       {
@@ -24,7 +24,7 @@
         "title": "Team meeting",
         "description": "Weekly team sync meeting",
         "completed": false,
-        "date": "2024-09-25",
+        "date": "2025-09-25",
         "time": "09:00"
       },
       {
@@ -32,22 +32,8 @@
         "title": "Code review",
         "description": "Review pull requests from team members",
         "completed": false,
-        "date": "2024-09-26",
+        "date": "2025-09-26",
         "allDay": true
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "email": "test2@gmail.com",
-    "tasks": [
-      {
-        "id": 201,
-        "title": "Doctor appointment",
-        "description": "Annual health checkup",
-        "completed": false,
-        "date": "2024-09-27",
-        "time": "15:30"
       }
     ]
   }

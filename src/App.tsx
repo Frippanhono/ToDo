@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import CalendarView from "./components/CalenderView";
 import LoginCard from "./components/LoginCard";
@@ -8,6 +8,16 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [loginError, setLoginError] = useState("");
+
+  // Check localStorage on component mount to restore login state
+  useEffect(() => {
+    const { isLoggedIn: storedLogin, userEmail: storedEmail } =
+      authService.getStoredLoginState();
+    if (storedLogin && storedEmail) {
+      setIsLoggedIn(true);
+      setUserEmail(storedEmail);
+    }
+  }, []);
 
   const handleLogin = (email: string) => {
     setLoginError("");
@@ -23,6 +33,7 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    authService.logout();
     setIsLoggedIn(false);
     setUserEmail("");
     setLoginError("");

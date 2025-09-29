@@ -1,10 +1,16 @@
 import dayGridPlugin from "@fullcalendar/daygrid";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as styledComponents from "styled-components";
 
-import userTasksData from "../Data/user_tasks.json";
+import {
+  addTask,
+  deleteTask,
+  getAllTasks,
+  toggleTaskCompleted,
+  updateTask,
+} from "../controllers/taskController";
 import { CATEGORY_COLORS, CategoryKey } from "../utils/categories";
 import AddTaskCard from "./AddTaskCard";
 import SortFilterBar, { StatusFilter } from "./SortFilterBar";
@@ -65,29 +71,27 @@ export default function CalendarView({
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const title = newTitle.trim();
-    if (!title || !newDate) return; // <-- ändrat
+    if (!title || !newDate) return;
 
-    const id = Date.now().toString();
-    const start = newAllDay || !newTime ? newDate : `${newDate}T${newTime}:00`;
-
-    const cat: CategoryKey = newCategory;
-
-    const newEvent = {
-      id,
-      title,
-      start,
-      backgroundColor: CATEGORY_COLORS[cat],
+    const result = addTask(userEmail, title, {
+      date: newDate,
+      time: newTime || undefined,
       allDay: newAllDay || !newTime,
-      extendedProps: { category: cat, done: false },
-    };
+      category: newCategory,
+    });
 
-    setEvents(prev => [...prev, newEvent]);
+    if (result.success) {
+      // Refresh events from localStorage
+      loadEventsFromStorage();
 
-    setNewTitle("");
-    setNewTime("");
-    setNewAllDay(true);
-    setNewDate(new Date().toISOString().slice(0, 10));
-    setNewCategory("work");
+      setNewTitle("");
+      setNewTime("");
+      setNewAllDay(true);
+      setNewDate(new Date().toISOString().slice(0, 10));
+      setNewCategory("work");
+    } else {
+      console.error("Failed to add task:", result.error);
+    }
   };
 
   // canSubmit – kräv vald kategori
@@ -97,33 +101,36 @@ export default function CalendarView({
     return raw !== undefined && Object.keys(CATEGORY_COLORS).includes(raw);
   }
 
-  useEffect(() => {
-    const currentUser = userTasksData.find(
-      (user: any) => user.email.toLowerCase() === userEmail.toLowerCase()
-    );
+  const loadEventsFromStorage = useCallback(async () => {
+    const tasks = (await getAllTasks(userEmail)) || [];
+    const calendarEvents = tasks.map(task => {
+      const raw = task.category as string | undefined;
+      const category: CategoryKey = isValidCategory(raw)
+        ? (raw as CategoryKey)
+        : "personal";
 
-    if (currentUser) {
-      const calendarEvents = currentUser.tasks.map((task: any) => {
-        const raw = task.category as string | undefined;
-        const category: CategoryKey = isValidCategory(raw)
-          ? (raw as CategoryKey)
-          : "personal";
-        return {
-          id: task.id.toString(),
-          title: task.title,
-          start: task.allDay
-            ? task.date
-            : `${task.date}T${task.time || "09:00"}:00`,
-          backgroundColor: CATEGORY_COLORS[category],
-          allDay: task.allDay || false,
-          extendedProps: { category },
-        };
-      });
-      setEvents(calendarEvents);
-    } else {
-      setEvents([]);
-    }
+      // Use gray color for completed tasks, otherwise use category color
+      const backgroundColor = task.completed
+        ? "#6b7280"
+        : CATEGORY_COLORS[category];
+
+      return {
+        id: task.id.toString(),
+        title: task.title,
+        start: task.allDay
+          ? task.date
+          : `${task.date}T${task.time || "09:00"}:00`,
+        backgroundColor,
+        allDay: task.allDay || false,
+        extendedProps: { category, done: task.completed },
+      };
+    });
+    setEvents(calendarEvents);
   }, [userEmail]);
+
+  useEffect(() => {
+    loadEventsFromStorage();
+  }, [loadEventsFromStorage]);
 
   const handleEventClick = (info: any) => {
     const e = info.event;
@@ -137,35 +144,30 @@ export default function CalendarView({
   };
 
   const saveEvent = (id: string, patch: { title?: string }) => {
-    setEvents(prev =>
-      prev.map((ev: any) =>
-        ev.id === id ? { ...ev, title: patch.title ?? ev.title } : ev
-      )
-    );
+    const result = updateTask(userEmail, parseInt(id), patch);
+    if (result.success) {
+      loadEventsFromStorage();
+    } else {
+      console.error("Failed to update task:", result.error);
+    }
   };
 
   const toggleComplete = (id: string) => {
-    setEvents(prev =>
-      prev.map((ev: any) => {
-        if (ev.id !== id) return ev;
-        const wasDone = ev.extendedProps?.done === true;
-        const done = !wasDone;
-        const category: CategoryKey = isValidCategory(
-          ev.extendedProps?.category
-        )
-          ? (ev.extendedProps.category as CategoryKey)
-          : "personal";
-        return {
-          ...ev,
-          backgroundColor: done ? "#9ca3af" : CATEGORY_COLORS[category], // grå när klar
-          extendedProps: { ...ev.extendedProps, done },
-        };
-      })
-    );
+    const result = toggleTaskCompleted(userEmail, parseInt(id));
+    if (result.success) {
+      loadEventsFromStorage();
+    } else {
+      console.error("Failed to toggle task completion:", result.error);
+    }
   };
 
   const deleteEvent = (id: string) => {
-    setEvents(prev => prev.filter((ev: any) => ev.id !== id));
+    const result = deleteTask(userEmail, parseInt(id));
+    if (result.success) {
+      loadEventsFromStorage();
+    } else {
+      console.error("Failed to delete task:", result.error);
+    }
   };
 
   return (

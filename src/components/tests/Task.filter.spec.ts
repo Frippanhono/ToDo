@@ -1,50 +1,109 @@
-import { filterCompleted, filterTodo, Task } from "@/utils/Tasklist";
+import { filterCompleted, filterTodo } from "@/controllers/taskController";
 
-const make = (overrides: Partial<Task> = {}): Task => ({
-  id: 1,
-  title: "Default",
-  category: "none",
-  completed: false,
-  date: new Date("2025-09-23T09:00:00Z"),
-  ...overrides,
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
 });
 
 describe("filterCompleted", () => {
-  it("filtrerar ut de färdiga uppgifterna", () => {
-    const input: Task[] = [
-      make({ id: 2, title: "Handla", completed: true }),
-      make({ id: 1, title: "Städa", completed: true }),
-      make({ id: 3, title: "Tvätta", completed: false }),
-    ];
-    const result = filterCompleted(input);
-    expect(result.map(t => t.title)).toEqual(["Handla", "Städa"]);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [
+            {
+              id: 2,
+              title: "Handla",
+              category: "none",
+              date: "2025-09-23",
+              completed: true,
+            },
+            {
+              id: 1,
+              title: "Städa",
+              category: "none",
+              date: "2025-09-23",
+              completed: true,
+            },
+            {
+              id: 3,
+              title: "Tvätta",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+          ],
+        },
+      ])
+    );
   });
 
-  it("muterar inte originalarrayen", () => {
-    const input = [make({ id: 1, title: "B" }), make({ id: 2, title: "A" })];
-    const copy = [...input];
-    const result = filterCompleted(input);
-    expect(input).toEqual(copy);
-    expect(result).not.toBe(input);
+  it("filtrerar ut de färdiga uppgifterna", async () => {
+    const result = await filterCompleted("test@gmail.com");
+    expect(result.map((t: any) => t.title)).toEqual(["Handla", "Städa"]);
+  });
+
+  it("returnerar tom array om användaren inte finns", async () => {
+    const result = await filterCompleted("nonexistent@gmail.com");
+    expect(result).toEqual([]);
   });
 });
 
 describe("filterTodo", () => {
-  it("filtrerar ut de uppgifterna som ska göras", () => {
-    const input: Task[] = [
-      make({ id: 2, title: "Handla", completed: false }),
-      make({ id: 1, title: "Städa", completed: true }),
-      make({ id: 3, title: "Tvätta", completed: false }),
-    ];
-    const result = filterTodo(input);
-    expect(result.map(t => t.title)).toEqual(["Handla", "Tvätta"]);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [
+            {
+              id: 2,
+              title: "Handla",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+            {
+              id: 1,
+              title: "Städa",
+              category: "none",
+              date: "2025-09-23",
+              completed: true,
+            },
+            {
+              id: 3,
+              title: "Tvätta",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+          ],
+        },
+      ])
+    );
   });
 
-  it("muterar inte originalarrayen", () => {
-    const input = [make({ id: 1, title: "B" }), make({ id: 2, title: "A" })];
-    const copy = [...input];
-    const result = filterTodo(input);
-    expect(input).toEqual(copy);
-    expect(result).not.toBe(input);
+  it("filtrerar ut de uppgifterna som ska göras", async () => {
+    const result = await filterTodo("test@gmail.com");
+    expect(result.map((t: any) => t.title)).toEqual(["Handla", "Tvätta"]);
+  });
+
+  it("returnerar tom array om användaren inte finns", async () => {
+    const result = await filterTodo("nonexistent@gmail.com");
+    expect(result).toEqual([]);
   });
 });

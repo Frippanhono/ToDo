@@ -1,54 +1,197 @@
-import { countAll, countCompleted, countTodo, Task } from "@/utils/Tasklist";
+import {
+  countAll,
+  countCompleted,
+  countTodo,
+} from "@/controllers/taskController";
 
-const make = (overrides: Partial<Task> = {}): Task => ({
-  id: 1,
-  title: "Default",
-  category: "none",
-  completed: false,
-  date: new Date("2025-09-23T09:00:00Z"),
-  ...overrides,
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
 });
 
 describe("countAll", () => {
-  it("räknar antal tasks", () => {
-    const input = [make(), make(), make()];
-    const result = countAll(input);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [
+            {
+              id: 1,
+              title: "Task 1",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+            {
+              id: 2,
+              title: "Task 2",
+              category: "none",
+              date: "2025-09-23",
+              completed: true,
+            },
+            {
+              id: 3,
+              title: "Task 3",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+          ],
+        },
+      ])
+    );
+  });
+
+  it("räknar antal tasks", async () => {
+    const result = await countAll("test@gmail.com");
     expect(result).toBe(3);
   });
 
-  it("tom lista → 0", () => {
-    expect(countAll([])).toBe(0);
+  it("tom lista → 0", async () => {
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [],
+        },
+      ])
+    );
+    expect(await countAll("test@gmail.com")).toBe(0);
+  });
+
+  it("användare inte finns → 0", async () => {
+    expect(await countAll("nonexistent@gmail.com")).toBe(0);
   });
 });
 
 describe("countTodo", () => {
-  it("räknar antal tasks som inte är gjorda", () => {
-    const input = [
-      make({ completed: true }),
-      make({ completed: false }),
-      make({ completed: false }),
-    ];
-    const result = countTodo(input);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [
+            {
+              id: 1,
+              title: "Task 1",
+              category: "none",
+              date: "2025-09-23",
+              completed: true,
+            },
+            {
+              id: 2,
+              title: "Task 2",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+            {
+              id: 3,
+              title: "Task 3",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+          ],
+        },
+      ])
+    );
+  });
+
+  it("räknar antal tasks som inte är gjorda", async () => {
+    const result = await countTodo("test@gmail.com");
     expect(result).toBe(2);
   });
 
-  it("tom lista → 0", () => {
-    expect(countTodo([])).toBe(0);
+  it("tom lista → 0", async () => {
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [],
+        },
+      ])
+    );
+    expect(await countTodo("test@gmail.com")).toBe(0);
+  });
+
+  it("användare inte finns → 0", async () => {
+    expect(await countTodo("nonexistent@gmail.com")).toBe(0);
   });
 });
 
 describe("countCompleted", () => {
-  it("räknar antal tasks som är klara", () => {
-    const input = [
-      make({ completed: true }),
-      make({ completed: false }),
-      make({ completed: false }),
-    ];
-    const result = countCompleted(input);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [
+            {
+              id: 1,
+              title: "Task 1",
+              category: "none",
+              date: "2025-09-23",
+              completed: true,
+            },
+            {
+              id: 2,
+              title: "Task 2",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+            {
+              id: 3,
+              title: "Task 3",
+              category: "none",
+              date: "2025-09-23",
+              completed: false,
+            },
+          ],
+        },
+      ])
+    );
+  });
+
+  it("räknar antal tasks som är klara", async () => {
+    const result = await countCompleted("test@gmail.com");
     expect(result).toBe(1);
   });
 
-  it("tom lista → 0", () => {
-    expect(countTodo([])).toBe(0);
+  it("tom lista → 0", async () => {
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [],
+        },
+      ])
+    );
+    expect(await countCompleted("test@gmail.com")).toBe(0);
+  });
+
+  it("användare inte finns → 0", async () => {
+    expect(await countCompleted("nonexistent@gmail.com")).toBe(0);
   });
 });
