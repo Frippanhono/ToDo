@@ -84,62 +84,62 @@ export function setTaskCompleted(
   return updateTaskInStorage(email, id, { completed });
 }
 
-export function filterCompleted(email: string): Task[] {
-  const user = getUserTasks(email);
-  return user ? user.tasks.filter((t: Task) => t.completed) : [];
+export async function filterCompleted(email: string): Promise<Task[]> {
+  const tasks = await getUserTasks(email);
+  return tasks ? tasks.filter((t: Task) => t.completed) : [];
 }
 
-export function filterTodo(email: string): Task[] {
-  const user = getUserTasks(email);
-  return user ? user.tasks.filter((t: Task) => !t.completed) : [];
+export async function filterTodo(email: string): Promise<Task[]> {
+  const tasks = await getUserTasks(email);
+  return tasks ? tasks.filter((t: Task) => !t.completed) : [];
 }
 
-export function sortByTitle(email: string): Task[] {
-  const user = getUserTasks(email);
-  if (!user) return [];
+export async function sortByTitle(email: string): Promise<Task[]> {
+  const tasks = await getUserTasks(email);
+  if (!tasks) return [];
 
-  return [...user.tasks].sort(
+  return [...tasks].sort(
     (a, b) => a.title.localeCompare(b.title) || a.id - b.id
   );
 }
 
-export function sortByDateAsc(email: string): Task[] {
-  const user = getUserTasks(email);
-  if (!user) return [];
+export async function sortByDateAsc(email: string): Promise<Task[]> {
+  const tasks = await getUserTasks(email);
+  if (!tasks) return [];
 
-  return [...user.tasks].sort(
+  return [...tasks].sort(
     (a, b) =>
       new Date(a.date).getTime() - new Date(b.date).getTime() || a.id - b.id
   );
 }
 
-export function sortByDateDesc(email: string): Task[] {
-  const user = getUserTasks(email);
-  if (!user) return [];
+export async function sortByDateDesc(email: string): Promise<Task[]> {
+  const tasks = await getUserTasks(email);
+  if (!tasks) return [];
 
-  return [...user.tasks].sort(
+  return [...tasks].sort(
     (a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime() || a.id - b.id
   );
 }
 
 // --- Count-funktioner ---
-export function countTasks(email: string): number {
-  const user = getUserTasks(email);
-  return user ? user.tasks.length : 0;
+export async function countTasks(email: string): Promise<number> {
+  const tasks = await getUserTasks(email);
+  return tasks ? tasks.length : 0;
 }
 
 // alias för testerna (countAll används i testerna)
 export const countAll = countTasks;
 
-export function countCompleted(email: string): number {
-  const user = getUserTasks(email);
-  return user ? user.tasks.filter((t: Task) => t.completed).length : 0;
+export async function countCompleted(email: string): Promise<number> {
+  const tasks = await getUserTasks(email);
+  return tasks ? tasks.filter((t: Task) => t.completed).length : 0;
 }
 
-export function countTodo(email: string): number {
-  const user = getUserTasks(email);
-  return user ? user.tasks.filter((t: Task) => !t.completed).length : 0;
+export async function countTodo(email: string): Promise<number> {
+  const tasks = await getUserTasks(email);
+  return tasks ? tasks.filter((t: Task) => !t.completed).length : 0;
 }
 
 // --- Helper function to get all tasks for a user ---

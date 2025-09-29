@@ -49,13 +49,13 @@ describe("filterCompleted", () => {
     );
   });
 
-  it("filtrerar ut de färdiga uppgifterna", () => {
-    const result = filterCompleted("test@gmail.com");
-    expect(result.map(t => t.title)).toEqual(["Handla", "Städa"]);
+  it("filtrerar ut de färdiga uppgifterna", async () => {
+    const result = await filterCompleted("test@gmail.com");
+    expect(result.map((t: any) => t.title)).toEqual(["Handla", "Städa"]);
   });
 
-  it("returnerar tom array om användaren inte finns", () => {
-    const result = filterCompleted("nonexistent@gmail.com");
+  it("returnerar tom array om användaren inte finns", async () => {
+    const result = await filterCompleted("nonexistent@gmail.com");
     expect(result).toEqual([]);
   });
 });
@@ -97,13 +97,13 @@ describe("filterTodo", () => {
     );
   });
 
-  it("filtrerar ut de uppgifterna som ska göras", () => {
-    const result = filterTodo("test@gmail.com");
-    expect(result.map(t => t.title)).toEqual(["Handla", "Tvätta"]);
+  it("filtrerar ut de uppgifterna som ska göras", async () => {
+    const result = await filterTodo("test@gmail.com");
+    expect(result.map((t: any) => t.title)).toEqual(["Handla", "Tvätta"]);
   });
 
-  it("returnerar tom array om användaren inte finns", () => {
-    const result = filterTodo("nonexistent@gmail.com");
+  it("returnerar tom array om användaren inte finns", async () => {
+    const result = await filterTodo("nonexistent@gmail.com");
     expect(result).toEqual([]);
   });
 });
