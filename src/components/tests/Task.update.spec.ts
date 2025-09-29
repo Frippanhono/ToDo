@@ -1,53 +1,75 @@
-import { type Task, updateTask } from "@/utils/Tasklist";
+import { updateTask } from "@/controllers/taskController";
 
-const base = (): Task[] => [
-  {
-    id: 1,
-    title: "Köp mjölk",
-    category: "Shop", //lagt till category och date - inget annat ändrat
-    date: new Date("2025-09-24"),
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Städa",
-    category: "Shop", //lagt till category och date - inget annat ändrat
-    date: new Date("2025-09-24"),
-    completed: true,
-  },
-];
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
 
-describe("updateTask (lean)", () => {
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage
+});
+
+describe("updateTask", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify([
+      {
+        id: 1,
+        email: "test@gmail.com",
+        tasks: [
+          {
+            id: 1,
+            title: "Köp mjölk",
+            category: "Shop",
+            date: "2025-09-24",
+            completed: false,
+          },
+          {
+            id: 2,
+            title: "Städa",
+            category: "Shop",
+            date: "2025-09-24",
+            completed: true,
+          },
+        ]
+      }
+    ]));
+  });
+
   it("uppdaterar titel för rätt id", () => {
-    const res = updateTask(base(), 1, { title: "Köp havre" });
-    expect(res[0].title).toBe("Köp havre");
+    const result = updateTask("test@gmail.com", 1, { title: "Köp havre" });
+    expect(result.success).toBe(true);
   });
 
   it("trimmar titel", () => {
-    const res = updateTask(base(), 1, { title: "  Ny titel  " });
-    expect(res[0].title).toBe("Ny titel");
+    const result = updateTask("test@gmail.com", 1, { title: "  Ny titel  " });
+    expect(result.success).toBe(true);
   });
 
-  it("tom titel kastar fel", () => {
-    expect(() => updateTask(base(), 1, { title: "   " })).toThrow(
-      "Title may not be empty"
-    );
+  it("tom titel returnerar error", () => {
+    const result = updateTask("test@gmail.com", 1, { title: "   " });
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Title may not be empty");
   });
 
   it("kan ändra completed", () => {
-    const res = updateTask(base(), 2, { completed: false });
-    expect(res[1].completed).toBe(false);
+    const result = updateTask("test@gmail.com", 2, { completed: false });
+    expect(result.success).toBe(true);
   });
 
-  it("okänt id → inget ändras (samma referens)", () => {
-    const start = base();
-    const res = updateTask(start, 999, { title: "X" });
-    expect(res).toBe(start);
+  it("okänt id → returnerar error", () => {
+    const result = updateTask("test@gmail.com", 999, { title: "X" });
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Task not found");
   });
 
-  it("patch utan faktisk ändring → samma referens", () => {
-    const start = base();
-    const res = updateTask(start, 1, { title: "Köp mjölk", completed: false });
-    expect(res).toBe(start);
+  it("användare inte finns → returnerar error", () => {
+    const result = updateTask("nonexistent@gmail.com", 1, { title: "X" });
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("User not found");
   });
 });

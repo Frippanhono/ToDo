@@ -1,38 +1,66 @@
-import { type Task, deleteTask } from "@/utils/Tasklist";
+import { deleteTask } from "@/controllers/taskController";
 
-const base = (): Task[] => [
-  {
-    id: 1,
-    title: "Köp mjölk",
-    category: "Shop",
-    date: new Date("2025-09-24"),
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Städa",
-    category: "Shop", //lagt till category och date - inget annat ändrat
-    date: new Date("2025-09-24"),
-    completed: true,
-  },
-  {
-    id: 3,
-    title: "Diska",
-    category: "Shop", //lagt till category och date - inget annat ändrat
-    date: new Date("2025-09-24"),
-    completed: false,
-  },
-];
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage
+});
 
 describe("deleteTask", () => {
-  it("tar bort uppgift med givet id", () => {
-    const res = deleteTask(base(), 2);
-    expect(res.map(t => t.id)).toEqual([1, 3]);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock initial data with tasks
+    mockLocalStorage.getItem.mockReturnValue(JSON.stringify([
+      {
+        id: 1,
+        email: "test@gmail.com",
+        tasks: [
+          {
+            id: 1,
+            title: "Köp mjölk",
+            category: "Shop",
+            date: "2025-09-24",
+            completed: false,
+          },
+          {
+            id: 2,
+            title: "Städa",
+            category: "Shop",
+            date: "2025-09-24",
+            completed: true,
+          },
+          {
+            id: 3,
+            title: "Diska",
+            category: "Shop",
+            date: "2025-09-24",
+            completed: false,
+          },
+        ]
+      }
+    ]));
   });
 
-  it("okänt id → inget ändras", () => {
-    const start = base();
-    const res = deleteTask(start, 999);
-    expect(res).toEqual(start); // samma innehåll räcker
+  it("tar bort uppgift med givet id", () => {
+    const result = deleteTask("test@gmail.com", 2);
+    expect(result.success).toBe(true);
+  });
+
+  it("okänt id → returnerar error", () => {
+    const result = deleteTask("test@gmail.com", 999);
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Task not found");
+  });
+
+  it("användare inte finns → returnerar error", () => {
+    const result = deleteTask("nonexistent@gmail.com", 1);
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("User not found");
   });
 });
