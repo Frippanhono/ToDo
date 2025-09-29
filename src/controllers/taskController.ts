@@ -143,7 +143,7 @@ export function countTodo(email: string): number {
 }
 
 // --- Helper function to get all tasks for a user ---
-export function getAllTasks(email: string): Task[] {
-  const user = getUserTasks(email);
-  return user ? user.tasks : [];
+export async function getAllTasks(email: string): Promise<Task[]> {
+  const tasks = await getUserTasks(email);
+  return tasks || [];
 }

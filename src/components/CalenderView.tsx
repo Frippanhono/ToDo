@@ -101,20 +101,26 @@ export default function CalendarView({
     return raw !== undefined && Object.keys(CATEGORY_COLORS).includes(raw);
   }
 
-  const loadEventsFromStorage = useCallback(() => {
-    const tasks = getAllTasks(userEmail);
+  const loadEventsFromStorage = useCallback(async () => {
+    const tasks = (await getAllTasks(userEmail)) || [];
     const calendarEvents = tasks.map(task => {
       const raw = task.category as string | undefined;
       const category: CategoryKey = isValidCategory(raw)
         ? (raw as CategoryKey)
         : "personal";
+
+      // Use gray color for completed tasks, otherwise use category color
+      const backgroundColor = task.completed
+        ? "#6b7280"
+        : CATEGORY_COLORS[category];
+
       return {
         id: task.id.toString(),
         title: task.title,
         start: task.allDay
           ? task.date
           : `${task.date}T${task.time || "09:00"}:00`,
-        backgroundColor: CATEGORY_COLORS[category],
+        backgroundColor,
         allDay: task.allDay || false,
         extendedProps: { category, done: task.completed },
       };

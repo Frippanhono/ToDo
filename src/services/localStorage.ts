@@ -1,12 +1,19 @@
 const STORAGE_KEY = "user_tasks_data";
+let isInitialized = false;
 
-const initializeStorage = () => {
+const initializeStorage = async () => {
+  if (isInitialized) return;
+
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) {
-    import("../Data/user_tasks.json").then(userTasksData => {
+    try {
+      const userTasksData = await import("../Data/user_tasks.json");
       localStorage.setItem(STORAGE_KEY, JSON.stringify(userTasksData.default));
-    });
+    } catch (error) {
+      console.error("Error loading initial data:", error);
+    }
   }
+  isInitialized = true;
 };
 
 const getAllData = () => {
@@ -31,11 +38,14 @@ const clearAllData = () => {
   localStorage.removeItem(STORAGE_KEY);
 };
 
-export const getUserTasks = (email: string) => {
+export const getUserTasks = async (email: string) => {
+  // Ensure storage is initialized before reading
+  await initializeStorage();
   const data = getAllData();
-  return data.find(
+  const userData = data.find(
     (user: any) => user.email.toLowerCase() === email.toLowerCase()
   );
+  return userData ? userData.tasks || [] : [];
 };
 
 // ===== CRUD =====
@@ -129,4 +139,5 @@ export const exportData = () => {
   return JSON.stringify(data, null, 2);
 };
 
+// Initialize storage on module load
 initializeStorage();
