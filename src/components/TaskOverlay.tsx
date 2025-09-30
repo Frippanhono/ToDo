@@ -58,7 +58,7 @@ export default function TaskOverlay({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setTitle(e.target.value)
           }
-/>
+        />
 
         <Actions>
           <LeftGroup>

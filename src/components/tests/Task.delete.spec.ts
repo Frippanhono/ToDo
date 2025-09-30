@@ -8,43 +8,45 @@ const mockLocalStorage = {
   clear: jest.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', {
-  value: mockLocalStorage
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
 });
 
 describe("deleteTask", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Mock initial data with tasks
-    mockLocalStorage.getItem.mockReturnValue(JSON.stringify([
-      {
-        id: 1,
-        email: "test@gmail.com",
-        tasks: [
-          {
-            id: 1,
-            title: "Köp mjölk",
-            category: "Shop",
-            date: "2025-09-24",
-            completed: false,
-          },
-          {
-            id: 2,
-            title: "Städa",
-            category: "Shop",
-            date: "2025-09-24",
-            completed: true,
-          },
-          {
-            id: 3,
-            title: "Diska",
-            category: "Shop",
-            date: "2025-09-24",
-            completed: false,
-          },
-        ]
-      }
-    ]));
+    mockLocalStorage.getItem.mockReturnValue(
+      JSON.stringify([
+        {
+          id: 1,
+          email: "test@gmail.com",
+          tasks: [
+            {
+              id: 1,
+              title: "Köp mjölk",
+              category: "Shop",
+              date: "2025-09-24",
+              completed: false,
+            },
+            {
+              id: 2,
+              title: "Städa",
+              category: "Shop",
+              date: "2025-09-24",
+              completed: true,
+            },
+            {
+              id: 3,
+              title: "Diska",
+              category: "Shop",
+              date: "2025-09-24",
+              completed: false,
+            },
+          ],
+        },
+      ])
+    );
   });
 
   it("tar bort uppgift med givet id", () => {
