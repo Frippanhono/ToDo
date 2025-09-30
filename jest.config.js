@@ -15,7 +15,18 @@ module.exports = {
   // Jest transformations
   // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
   transform: {
-    "^.+\\.tsx?$": "ts-jest", // Transform TypeScript files using ts-jest
+    // Dina TypeScript-filer
+    "^.+\\.tsx?$": "ts-jest",
+    // JS/ESM i node_modules (behövs för preact/@fullcalendar)
+    "^.+\\.jsx?$": [
+      "@swc/jest",
+      {
+        jsc: {
+          target: "es2019",
+          parser: { syntax: "ecmascript" },
+        },
+      },
+    ],
   },
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test file in the suite is executed
@@ -49,6 +60,11 @@ module.exports = {
     // Handle TypeScript path aliases
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+
+  // Viktigt: vitlista ESM-paket som behöver transpileras
+  transformIgnorePatterns: [
+    "/node_modules/(?!(preact|@fullcalendar|tslib|fast-deep-equal)/)",
+  ],
 
   verbose: true,
   testTimeout: 30000,
