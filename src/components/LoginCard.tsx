@@ -47,6 +47,7 @@ export default function LoginCardComponent({
             <Input
               required
               id="email"
+              data-testid="email-input"
               type="email"
               value={email}
               placeholder="Ingresa tu email"

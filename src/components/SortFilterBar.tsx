@@ -33,6 +33,7 @@ export default function SortFilterBar({
     <Bar>
       <Select
       aria-label="Category filter"
+      data-testid="category-filter"
         value={activeCategory}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
           onCategoryChange(e.target.value as CategoryKey | "all")
@@ -48,6 +49,7 @@ export default function SortFilterBar({
 
       <Select
       aria-label="Status filter"
+      data-testid="status-filter"
         value={statusFilter}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
           onStatusChange(e.target.value as StatusFilter)
