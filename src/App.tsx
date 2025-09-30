@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import CalendarView from "./components/CalenderView";
+import CalendarView from "./components/CalendarView";
 import LoginCard from "./components/LoginCard";
 import { authService } from "./utils/authService";
 
