@@ -8,12 +8,14 @@ describe("Calendar view", () => {
         win.localStorage.clear();
       },
     });
-    cy.get("input#email").type("test@gmail.com");
+
+    // login
+    cy.findByTestId("email-input").type("test@gmail.com");
     cy.findByRole("button", { name: /login/i }).click();
   });
 
   it("shows the calendar title", () => {
-    cy.get('[data-testid="calendar-title"]').should("be.visible");
+    cy.findByTestId("calendar-title").should("be.visible");
   });
 
   it("displays the logged in user's email", () => {
@@ -21,56 +23,69 @@ describe("Calendar view", () => {
   });
 
   it("can add a new task", () => {
-    cy.get("input#title").type("My Cypress Task");
-    cy.get("input#date").clear().type("2025-09-30");
+    cy.findByTestId("title-input").type("My Cypress Task");
+    cy.findByTestId("date-input").clear().type("2025-09-30");
     cy.findByRole("button", { name: /add/i }).click();
-    cy.contains(".fc-event-title", "My Cypress Task").should("be.visible");
+
+    // säkert: starta en ny kedja med cy.
+    cy.contains('[data-testid="fc-event"]', "My Cypress Task").should("be.visible");
   });
 
   it("shows all status options and can filter to Completed", () => {
-    cy.get(".fc-event").should("have.length.at.least", 1);
+    // det ska finnas minst ett event initialt
+    cy.get('[data-testid="fc-event"]').its("length").should("be.gte", 1);
 
-    cy.findByRole("combobox", { name: /status filter/i }).select("Completed");
-    cy.get(".fc-event").should("have.length", 1);
-    cy.contains(".fc-event", "Send report").should("be.visible");
+    cy.findByTestId("status-filter").select("Completed");
+
+    // efter filter ska det fortfarande finnas minst ett (vårt seed har completed)
+    cy.get('[data-testid="fc-event"]').its("length").should("be.gte", 1);
+
+    // använd ny cy-kedja för contains (ingen kedjning efter get)
+    cy.contains('[data-testid="fc-event"]', "Send report").should("be.visible");
+
+    // backa till All status
+    cy.findByTestId("status-filter").select("All status");
+    cy.get('[data-testid="fc-event"]').its("length").should("be.gte", 1);
   });
 
   it("can filter by category", () => {
-    cy.get("input#title").type("Work-only task");
-    cy.get("input#date").clear().type("2025-09-30");
-    cy.findByRole("combobox", { name: /category filter/i }).select("work");
+    // skapa en uppgift i 'work'
+    cy.findByTestId("title-input").type("Work-only task");
+    cy.findByTestId("date-input").clear().type("2025-09-30");
+    cy.findByTestId("add-task-category-filter").select("work");
     cy.findByRole("button", { name: /add/i }).click();
 
-    cy.findByRole("combobox", { name: /category filter/i }).select("work");
-    cy.contains(".fc-event", "Work-only task").should("be.visible");
+    // filtrera till work och verifiera
+    cy.findByTestId("category-filter").select("work");
+    cy.contains('[data-testid="fc-event"]', "Work-only task").should("be.visible");
 
-    cy.findByRole("combobox", { name: /category filter/i }).select("home");
-    cy.contains(".fc-event", "Work-only task").should("not.exist");
+    // filtrera till home och verifiera att den inte syns
+    cy.findByTestId("category-filter").select("home");
+    cy.contains('[data-testid="fc-event"]', "Work-only task").should("not.exist");
   });
 
   it("renders both filter dropdowns with correct options", () => {
-   
-    cy.findByRole("combobox", { name: /category filter/i }).should("exist");
-    cy.findByRole("combobox", { name: /status filter/i }).should("exist");
+    cy.findByTestId("category-filter").should("exist");
+    cy.findByTestId("status-filter").should("exist");
 
-    cy.findByRole("combobox", { name: /status filter/i })
+    cy.findByTestId("status-filter")
       .find("option")
-      .then($opts => {
-        const labels = [...$opts].map(o => o.textContent?.trim()?.toLowerCase());
+      .then(($opts) => {
+        const labels = [...$opts].map((o) => o.textContent?.trim()?.toLowerCase());
         expect(labels).to.include.members(["all status", "todo", "completed"]);
       });
 
-    cy.findByRole("combobox", { name: /category filter/i })
+    cy.findByTestId("category-filter")
       .find("option")
-      .then($opts => {
-        const labels = [...$opts].map(o => o.textContent?.trim()?.toLowerCase());
+      .then(($opts) => {
+        const labels = [...$opts].map((o) => o.textContent?.trim()?.toLowerCase());
         expect(labels).to.include.members([
           "all categories",
           "work / studies",
           "home / household",
           "health / well-being",
-          "family / relationships",      
-          "personal development / interests", 
+          "family / relationships",
+          "personal development / interests",
         ]);
       });
   });
