@@ -79,6 +79,7 @@ export default function AddTaskCard({
           <Input
             required
             id="title"
+            data-testid="title-input"
             type="text"
             value={newTitle}
             placeholder="Enter a title…"
@@ -93,6 +94,7 @@ export default function AddTaskCard({
           <Input
             required
             id="date"
+            data-testid="date-input"
             type="date"
             value={newDate}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -124,6 +126,7 @@ export default function AddTaskCard({
           <Select
             required
             id="category"
+            data-testid="add-task-category-filter"
             value={newCategory}
             aria-invalid={false}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -273,10 +276,10 @@ const Select = styled.select`
   }
 `;
 
-const Hint = styled.span`
-  font-size: 12px;
-  color: #6b7280;
-`;
+//const Hint = styled.span`
+//  font-size: 12px;
+//  color: #6b7280;
+//`;
 
 /* --- “All day” switch --- */
 const Switch = styled.div<{ $checked: boolean }>`

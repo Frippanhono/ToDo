@@ -36,14 +36,17 @@ export default function TaskOverlay({
 
   return (
     <Backdrop
+      data-testid="task-overlay"
       onClick={(e: { target: any; currentTarget: any }) =>
         e.target === e.currentTarget && onClose()
       }
     >
       <Card role="dialog" aria-modal="true">
         <Header>
-          <h2>Task</h2>
-          <Close onClick={onClose}>✕</Close>
+          <h2 data-testid="overlay-header">Task</h2>
+          <Close data-testid="overlay-close" onClick={onClose}>
+            ✕
+          </Close>
         </Header>
 
         {/* Kategori (read-only badge) */}
@@ -55,19 +58,31 @@ export default function TaskOverlay({
         <Label>Titel</Label>
         <Input
           value={title}
+          data-testid="overlay-title-input"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setTitle(e.target.value)
           }
-/>
+        />
 
         <Actions>
           <LeftGroup>
-            <Danger onClick={onDelete}>Radera</Danger>
-            <Ghost onClick={onToggleComplete}>Markera klar/ej klar</Ghost>
+            <Danger data-testid="overlay-delete" onClick={onDelete}>
+              Radera
+            </Danger>
+            <Ghost data-testid="overlay-toggle" onClick={onToggleComplete}>
+              Markera klar/ej klar
+            </Ghost>
           </LeftGroup>
           <RightGroup>
-            <Ghost onClick={onClose}>Avbryt</Ghost>
-            <Primary onClick={() => onSave({ title })}>Spara</Primary>
+            <Ghost data-testid="overlay-cancel" onClick={onClose}>
+              Avbryt
+            </Ghost>
+            <Primary
+              data-testid="overlay-save"
+              onClick={() => onSave({ title })}
+            >
+              Spara
+            </Primary>
           </RightGroup>
         </Actions>
       </Card>

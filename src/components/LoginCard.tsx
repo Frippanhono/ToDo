@@ -28,7 +28,7 @@ export default function LoginCardComponent({
 
     // Validate before submitting
     if (!email.trim()) {
-      setEmailError("Email is required");
+      setEmailError("Please enter a valid email address");
       return;
     }
 
@@ -41,15 +41,16 @@ export default function LoginCardComponent({
     <Container>
       <LoginCard>
         <Title data-testid="login-title">Login</Title>
-        <Form onSubmit={handleSubmit}>
+        <Form noValidate onSubmit={handleSubmit}>
           <InputGroup>
             <Label htmlFor="email">Email</Label>
             <Input
               required
               id="email"
+              data-testid="email-input"
               type="email"
               value={email}
-              placeholder="Ingresa tu email"
+              placeholder="Enter email"
               onChange={handleEmailChange}
             />
           </InputGroup>
