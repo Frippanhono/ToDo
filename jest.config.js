@@ -2,6 +2,7 @@
 module.exports = {
   // The test environment that will be used for testing, jsdom for browser environment
   // https://jestjs.io/docs/configuration#testenvironment-string
+  preset: 'ts-jest',
   testEnvironment: "jsdom",
 
   // A list of paths to directories that Jest should use to search for files in
@@ -14,20 +15,17 @@ module.exports = {
 
   // Jest transformations
   // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
-  transform: {
-    // Dina TypeScript-filer
-    "^.+\\.tsx?$": "ts-jest",
-    // JS/ESM i node_modules (behövs för preact/@fullcalendar)
-    "^.+\\.jsx?$": [
-      "@swc/jest",
-      {
-        jsc: {
-          target: "es2019",
-          parser: { syntax: "ecmascript" },
-        },
-      },
+    preset: 'ts-jest',
+    testEnvironment: 'jsdom',
+    transform: {
+      '^.+\\.tsx?$': 'ts-jest',
+      '^.+\\.jsx?$': ['babel-jest', {
+        presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
+      }],
+    },
+    transformIgnorePatterns: [
+      '/node_modules/(?!(preact|@fullcalendar|tslib|fast-deep-equal)/)',
     ],
-  },
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test file in the suite is executed
   // https://jestjs.io/docs/configuration#setupfilesafterenv-array
