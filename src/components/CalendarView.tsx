@@ -223,6 +223,9 @@ export default function CalendarView({
         eventTextColor="#fff"
         eventClick={handleEventClick}
         eventDidMount={arg => {
+          arg.el.setAttribute("data-testid", "fc-event");
+          arg.el.setAttribute("data-event-title", arg.event.title);
+
           // ADDED: tona ner & strike-through om done
           if (arg.event.extendedProps?.done) {
             arg.el.style.textDecoration = "line-through";
