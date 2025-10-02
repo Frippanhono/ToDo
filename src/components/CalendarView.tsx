@@ -7,12 +7,12 @@ import * as styledComponents from "styled-components";
 
 import {
   addTask,
-  deleteTask,
   getAllTasks,
+  Task,
   toggleTaskCompleted,
-  updateTask,
 } from "../controllers/taskController";
 import { CATEGORY_COLORS, CategoryKey } from "../utils/categories";
+import { toCalendarFromTask, toTaskFromCalendar } from "../utils/toTaskAdapter";
 import AddTaskCard from "./AddTaskCard";
 import SortFilterBar, { StatusFilter } from "./SortFilterBar";
 import TaskOverlay from "./TaskOverlay";
@@ -144,33 +144,6 @@ export default function CalendarView({
     });
   };
 
-  const saveEvent = (id: string, patch: { title?: string }) => {
-    const result = updateTask(userEmail, parseInt(id), patch);
-    if (result.success) {
-      loadEventsFromStorage();
-    } else {
-      console.error("Failed to update task:", result.error);
-    }
-  };
-
-  const toggleComplete = (id: string) => {
-    const result = toggleTaskCompleted(userEmail, parseInt(id));
-    if (result.success) {
-      loadEventsFromStorage();
-    } else {
-      console.error("Failed to toggle task completion:", result.error);
-    }
-  };
-
-  const deleteEvent = (id: string) => {
-    const result = deleteTask(userEmail, parseInt(id));
-    if (result.success) {
-      loadEventsFromStorage();
-    } else {
-      console.error("Failed to delete task:", result.error);
-    }
-  };
-
   return (
     <Container>
       <HeaderCard>
@@ -181,7 +154,7 @@ export default function CalendarView({
           </div>
           <p>{userEmail}</p>
         </Brand>
-        <LogoutButton aria-label="Logout" onClick={onLogout} type="button">
+        <LogoutButton aria-label="Logout" type="button" onClick={onLogout}>
           <LogoutIconStyled aria-hidden="true" focusable="false" />
           <span>Log out</span>
         </LogoutButton>
@@ -251,18 +224,34 @@ export default function CalendarView({
         </Inner>
       </Panel>
 
-      {/* ADDED: overlay mountas sist i trädet */}
       {selectedEvent && (
         <TaskOverlay
-          event={selectedEvent}
+          event={toTaskFromCalendar(selectedEvent)}
           onClose={() => setSelectedEvent(null)}
           onSave={patch => {
-            saveEvent(selectedEvent.id, patch);
+            setEvents(prev => {
+              return prev.map(ev => {
+                if (ev.id !== selectedEvent.id) return ev;
+                const nextTask: Task = {
+                  ...toTaskFromCalendar(ev),
+                  ...patch,
+                };
+                return toCalendarFromTask(nextTask);
+              });
+            });
             setSelectedEvent(null);
           }}
-          onToggleComplete={() => toggleComplete(selectedEvent.id)}
+          onToggleComplete={() => {
+            const idNum = Number(selectedEvent?.id);
+            const res = toggleTaskCompleted(userEmail, idNum);
+            if (res.success) {
+              loadEventsFromStorage();
+            } else {
+              console.error("Failed to toggle task completion:", res.error);
+            }
+          }}
           onDelete={() => {
-            deleteEvent(selectedEvent.id);
+            setEvents(prev => prev.filter(ev => ev.id !== selectedEvent?.id));
             setSelectedEvent(null);
           }}
         />
