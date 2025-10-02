@@ -1,14 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { Task } from "../controllers/taskController";
 import TaskOverlay from "./TaskOverlay";
 
-const baseEvent = {
-  id: "1",
+const baseEvent: Task = {
+  id: 1,
   title: "My task",
-  start: "2025-10-01",
+  completed: false,
+  date: "2025-10-02",
+  time: "",
   allDay: true,
-  category: "work" as const,
+  category: "work",
 };
 
 test("renders title and category", () => {
@@ -21,11 +24,15 @@ test("renders title and category", () => {
       onDelete={jest.fn()}
     />
   );
+
+  // Title input värde
   expect(screen.getByDisplayValue(/my task/i)).toBeInTheDocument();
+
+  // Kategori-label i selecten (matchar t.ex. "Work / Studies")
   expect(screen.getByText(/work/i)).toBeInTheDocument();
 });
 
-test("calls onSave ...", async () => {
+test("calls onSave with trimmed title and fields", async () => {
   const user = userEvent.setup();
   const onSave = jest.fn();
 
@@ -39,12 +46,16 @@ test("calls onSave ...", async () => {
     />
   );
 
-  const input = screen.getByRole("textbox");
+  const input = screen.getByRole("textbox", { name: /title/i });
   await user.clear(input);
   await user.type(input, "  New title  ");
-  await user.click(screen.getByRole("button", { name: /spara/i }));
 
-  expect(onSave).toHaveBeenCalledWith({ title: "  New title  " });
+  await user.click(screen.getByRole("button", { name: /save/i }));
+
+  // Komponentens handleSave trimmar title och skickar fler fält.
+  expect(onSave).toHaveBeenCalledWith(
+    expect.objectContaining({ title: "New title" })
+  );
 });
 
 test("calls onDelete when clicking delete", async () => {
@@ -61,6 +72,6 @@ test("calls onDelete when clicking delete", async () => {
     />
   );
 
-  await user.click(screen.getByRole("button", { name: /radera/i }));
+  await user.click(screen.getByRole("button", { name: /delete/i }));
   expect(onDelete).toHaveBeenCalled();
 });

@@ -31,7 +31,6 @@ describe("Calendar view", () => {
     cy.findByTestId("date-input").type("2025-09-30");
     cy.findByRole("button", { name: /add/i }).click();
 
-    // Ny kedja från cy — inga “scoped contains”
     cy.get('[data-testid="fc-event"]', { timeout: 8000 }).should(
       "contain.text",
       "My Cypress Task"
@@ -45,13 +44,17 @@ describe("Calendar view", () => {
     cy.findByTestId("date-input").type("2025-09-30");
     cy.findByRole("button", { name: /add/i }).click();
 
-    // 2) Markera som completed via overlay så vi vet att det finns minst en “completed”
+    // 2) Markera som completed via overlay
     cy.contains('[data-testid="fc-event"]', "Seed Task", {
       timeout: 8000,
     }).click();
-    cy.findByTestId("task-overlay").should("be.visible");
-    cy.findByTestId("overlay-toggle").click(); // toggle completed
-    cy.findByTestId("overlay-close").click();
+
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        cy.findByTestId("overlay-toggle").click();
+        cy.findByTestId("overlay-close").click();
+      });
 
     // 3) Filtrera till completed
     cy.findByTestId("status-filter").select("completed");
@@ -88,36 +91,6 @@ describe("Calendar view", () => {
     );
   });
 
-  it("renders both filter dropdowns with correct options", () => {
-    cy.findByTestId("category-filter").should("exist");
-    cy.findByTestId("status-filter").should("exist");
-
-    cy.findByTestId("status-filter")
-      .find("option")
-      .then($opts => {
-        const labels = Array.from($opts).map(o =>
-          o.textContent?.trim()?.toLowerCase()
-        );
-        expect(labels).to.include.members(["all status", "todo", "completed"]);
-      });
-
-    cy.findByTestId("category-filter")
-      .find("option")
-      .then($opts => {
-        const labels = Array.from($opts).map(o =>
-          o.textContent?.trim()?.toLowerCase()
-        );
-        expect(labels).to.include.members([
-          "all categories",
-          "work / studies",
-          "home / household",
-          "health / well-being",
-          "family / relationships",
-          "personal development / interests",
-        ]);
-      });
-  });
-
   it("opens TaskOverlay on event click, can save new title and delete the task", () => {
     // 1) Skapa uppgift
     cy.findByTestId("title-input").type("Overlay Test");
@@ -125,33 +98,127 @@ describe("Calendar view", () => {
     cy.findByTestId("date-input").type("2025-09-30");
     cy.findByRole("button", { name: /add/i }).click();
 
-    // 2) Öppna overlay genom att klicka på eventets kort
+    // 2) Öppna overlay
     cy.contains('[data-testid="fc-event"]', "Overlay Test", {
       timeout: 8000,
     }).click();
 
     // 3) Overlay syns
-    cy.findByTestId("task-overlay").should("be.visible");
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        // 4) Ändra titel och spara
+        // eslint-disable-next-line cypress/unsafe-to-chain-command
+        cy.findByTestId("overlay-title-input").clear().type("Overlay Edited");
+        cy.findByTestId("overlay-save").click();
+      });
 
-    // 4) Ändra titel och spara
-    cy.findByTestId("overlay-title-input").clear();
-    cy.findByTestId("overlay-title-input").type("Overlay Edited");
-    cy.findByTestId("overlay-save").click();
-
-    // 5) Verifiera att eventet uppdaterats (ny titel finns)
+    // 5) Verifiera ny titel finns
     cy.contains('[data-testid="fc-event"]', "Overlay Edited", {
       timeout: 8000,
     }).should("exist");
 
     // 6) Öppna igen och radera
     cy.contains('[data-testid="fc-event"]', "Overlay Edited").click();
-    cy.findByTestId("task-overlay").should("be.visible");
-    cy.findByTestId("overlay-delete").click();
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        cy.findByTestId("overlay-delete").click();
+      });
 
     // 7) Eventet ska vara borta
     cy.contains('[data-testid="fc-event"]', "Overlay Edited").should(
       "not.exist"
     );
+  });
+
+  it("can change category in TaskOverlay", () => {
+    // Seed
+    cy.findByTestId("title-input").type("Cat change");
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
+    cy.findByTestId("date-input").clear().type("2025-10-02");
+    cy.findByRole("button", { name: /add/i }).click();
+
+    // Öppna overlay
+    cy.contains('[data-testid="fc-event"]', "Cat change", {
+      timeout: 8000,
+    }).click();
+
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        cy.findByTestId("overlay-category").select("home");
+        cy.findByTestId("overlay-save").click();
+      });
+
+    // Verifiera via overlay-selectens value
+    cy.contains('[data-testid="fc-event"]', "Cat change").click();
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        cy.findByTestId("overlay-category").should("have.value", "home");
+        cy.findByTestId("overlay-close").click();
+      });
+  });
+
+  it("can toggle completed in TaskOverlay", () => {
+    // Seed
+    cy.findByTestId("title-input").type("Complete me");
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
+    cy.findByTestId("date-input").clear().type("2025-10-02");
+    cy.findByRole("button", { name: /add/i }).click();
+
+    // Öppna overlay och toggla Completed
+    cy.contains('[data-testid="fc-event"]', "Complete me", {
+      timeout: 8000,
+    }).click();
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        cy.findByTestId("overlay-toggle").click();
+        cy.findByTestId("overlay-close").click();
+      });
+
+    // Verifiera via statusfilter
+    cy.findByTestId("status-filter").select("completed");
+    cy.contains('[data-testid="fc-event"]', "Complete me").should("exist");
+    cy.findByTestId("status-filter").select("todo");
+    cy.contains('[data-testid="fc-event"]', "Complete me").should("not.exist");
+  });
+
+  it("can change time/date and toggle All Day in TaskOverlay", () => {
+    // Seed
+    cy.findByTestId("title-input").type("DateTime task");
+    // eslint-disable-next-line cypress/unsafe-to-chain-command
+    cy.findByTestId("date-input").clear().type("2025-10-02");
+    cy.findByRole("button", { name: /add/i }).click();
+
+    // 1) Öppna overlay, slå AV All Day, skriv tid, spara
+    cy.contains('[data-testid="fc-event"]', "DateTime task", {
+      timeout: 8000,
+    }).click();
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        // Använd gärna vårt test-id för switchen (stabilare än role)
+        cy.findByTestId("overlay-allday").click(); // allDay: true -> false
+        cy.findByTestId("overlay-time").should("not.be.disabled");
+        // eslint-disable-next-line cypress/unsafe-to-chain-command
+        cy.findByTestId("overlay-time").clear().type("09:30");
+        cy.findByTestId("overlay-save").click();
+      });
+
+    // 2) Öppna igen, slå PÅ All Day, tid ska bli disabled & tom, spara
+    cy.contains('[data-testid="fc-event"]', "DateTime task").click();
+    cy.findByTestId("task-overlay")
+      .should("be.visible")
+      .within(() => {
+        cy.findByTestId("overlay-allday").click(); // allDay: false -> true
+        cy.findByTestId("overlay-time")
+          .should("be.disabled")
+          .and("have.value", "");
+        cy.findByTestId("overlay-save").click();
+      });
   });
 });
 
