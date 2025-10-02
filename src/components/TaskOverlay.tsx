@@ -3,11 +3,7 @@ import React, { useState } from "react";
 import * as styledComponents from "styled-components";
 
 import { Task } from "../controllers/taskController";
-import {
-  CATEGORY_COLORS,
-  CATEGORY_OPTIONS,
-  CategoryKey,
-} from "../utils/categories";
+import { CATEGORY_OPTIONS, CategoryKey } from "../utils/categories";
 
 const styled = styledComponents.default;
 
@@ -38,14 +34,13 @@ export default function TaskOverlay({
   const toggleAllDay = () => {
     const next = !allDay;
     setAllDay(next);
-    if (next && time) setTime(""); // rensa tid om All Day sätts på
+    if (next && time) setTime("");
   };
 
   const handleSave = () => {
     const trimmed = title.trim();
     if (!trimmed) return;
     if (time && !date) return;
-
     onSave({
       title: trimmed,
       category,
@@ -70,47 +65,19 @@ export default function TaskOverlay({
           <h2 id="overlay-title" data-testid="overlay-header">
             Task
           </h2>
-          <Close data-testid="overlay-close" onClick={onClose}>
-            ✕
-          </Close>
-        </Header>
 
-        {/* Top row: Category (left) + Completed (right) */}
-        <RowBetween>
-          <Field>
-            <Label htmlFor="overlay-category">Category</Label>
-            <RowInline>
-              <Dot style={{ background: CATEGORY_COLORS[category] }} />
-              <Select
-                id="overlay-category"
-                data-testid="overlay-category"
-                value={category}
-                onChange={e => setCategory(e.target.value as CategoryKey)}
-              >
-                {CATEGORY_OPTIONS.filter(
-                  opt => opt.key !== ("none" as CategoryKey)
-                ).map(opt => (
-                  <option key={opt.key} value={opt.key}>
-                    {opt.label}
-                  </option>
-                ))}
-              </Select>
-            </RowInline>
-          </Field>
-
-          <Field>
-            <Label as="span">Completed</Label>
+          <HeaderCenter>
+            <HeaderLabel>Completed</HeaderLabel>
             <Switch
               data-testid="overlay-toggle"
-              aria-label="Completed"
               role="switch"
               aria-checked={completed}
+              aria-label="Completed"
               tabIndex={0}
               $checked={completed}
-              title="Toggle completed"
               onClick={() => {
-                setCompleted(c => !c); // optimistiskt UI
-                onToggleComplete(); // persistera
+                setCompleted(c => !c);
+                onToggleComplete();
               }}
               onKeyDown={e => {
                 if (e.key === " " || e.key === "Enter") {
@@ -122,11 +89,19 @@ export default function TaskOverlay({
             >
               <SwitchThumb $checked={completed} />
             </Switch>
-          </Field>
-        </RowBetween>
+          </HeaderCenter>
 
-        {/* Title */}
-        <Field>
+          <Close
+            data-testid="overlay-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ✕
+          </Close>
+        </Header>
+
+        {/* Stacked fields */}
+        <TitleField data-completed={completed ? "true" : "false"}>
           <Label htmlFor="title">Title</Label>
           <Input
             id="title"
@@ -136,64 +111,72 @@ export default function TaskOverlay({
               setTitle(e.target.value)
             }
           />
+        </TitleField>
+
+        <Field>
+          <Label htmlFor="overlay-date">Date</Label>
+          <Input
+            id="overlay-date"
+            data-testid="overlay-date"
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+          />
         </Field>
 
-        {/* Date (left) + Time (middle) + All Day (right, label above switch) */}
-        <GridThree>
-          <Field>
-            <Label htmlFor="overlay-date">Date</Label>
-            <Input
-              id="overlay-date"
-              data-testid="overlay-date"
-              type="date"
-              value={date}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setDate(e.target.value)
+        <Field $disabled={allDay}>
+          <Label htmlFor="overlay-time" aria-disabled={allDay}>
+            Time
+          </Label>
+          <Input
+            id="overlay-time"
+            data-testid="overlay-time"
+            type="time"
+            value={time}
+            disabled={allDay}
+            onChange={e => setTime(e.target.value)}
+          />
+        </Field>
+
+        <Field>
+          <Label htmlFor="overlay-category">Category</Label>
+          <Select
+            id="overlay-category"
+            data-testid="overlay-category"
+            value={category}
+            onChange={e => setCategory(e.target.value as CategoryKey)}
+          >
+            {CATEGORY_OPTIONS.filter(
+              opt => opt.key !== ("none" as CategoryKey)
+            ).map(opt => (
+              <option key={opt.key} value={opt.key}>
+                {opt.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        <Field style={{ marginBottom: 28 }}>
+          <Label as="span">All day</Label>
+          <Switch
+            role="switch"
+            aria-label="All day"
+            aria-checked={allDay}
+            data-testid="overlay-allday"
+            tabIndex={0}
+            $checked={allDay}
+            onClick={toggleAllDay}
+            onKeyDown={e => {
+              if (e.key === " " || e.key === "Enter") {
+                e.preventDefault();
+                toggleAllDay();
               }
-            />
-          </Field>
+            }}
+          >
+            <SwitchThumb $checked={allDay} />
+          </Switch>
+        </Field>
 
-          <Field $disabled={allDay}>
-            <Label htmlFor="overlay-time" aria-disabled={allDay}>
-              Time
-            </Label>
-            <TimeInput
-              id="overlay-time"
-              data-testid="overlay-time"
-              type="time"
-              value={time}
-              disabled={allDay}
-              placeholder="—"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setTime(e.target.value)
-              }
-            />
-          </Field>
-
-          <Field>
-            <Label as="span">All Day</Label>
-            <Switch
-              role="switch"
-              aria-label="All day"
-              aria-checked={allDay}
-              data-testid="overlay-allday"
-              tabIndex={0}
-              $checked={allDay}
-              title="Toggle all day"
-              onClick={toggleAllDay}
-              onKeyDown={e => {
-                if (e.key === " " || e.key === "Enter") {
-                  e.preventDefault();
-                  toggleAllDay();
-                }
-              }}
-            >
-              <SwitchThumb $checked={allDay} />
-            </Switch>
-          </Field>
-        </GridThree>
-
-        {/* Bottom actions */}
         <Actions>
           <LeftGroup>
             <Danger data-testid="overlay-delete" onClick={onDelete}>
@@ -216,7 +199,7 @@ export default function TaskOverlay({
   );
 }
 
-/* ========== Styles ========== */
+/* ========== Styles (all styling here) ========== */
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
@@ -226,125 +209,140 @@ const Backdrop = styled.div`
   background: rgba(0, 0, 0, 0.5);
   z-index: 50;
 `;
+
 const Card = styled.div`
   width: 100%;
-  max-width: 560px;
+  max-width: 480px;
   background: #fff;
   border-radius: 16px;
-  padding: 16px;
+  padding: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 `;
+
 const Header = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* left | center | right */
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+
   h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 22px;
+    justify-self: start;
   }
 `;
+
+const HeaderCenter = styled.div`
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+`;
+
+const HeaderLabel = styled.span`
+  font-size: 12px;
+  color: #666;
+`;
+
 const Close = styled.button`
+  justify-self: end;
   border: none;
   background: transparent;
   font-size: 18px;
   cursor: pointer;
 `;
+
 const Label = styled.label`
   display: block;
   font-size: 12px;
   color: #666;
-  margin-top: 8px;
+  margin: 6px 0 6px;
 `;
+
 const Field = styled.div<{ $disabled?: boolean }>`
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
+  margin-bottom: 14px;
   opacity: ${p => (p.$disabled ? 0.6 : 1)};
 `;
+
+const TitleField = styled(Field)`
+  &[data-completed="true"] input {
+    text-decoration: line-through;
+    color: #6b7280; /* valfritt: dämpa färgen när completed */
+  }
+`;
+
 const Input = styled.input`
   width: 100%;
   box-sizing: border-box;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin: 6px 0 14px;
-`;
-const TimeInput = styled(Input)`
-  max-width: 120px;
-  min-width: 100px;
-`;
-const Select = styled.select`
-  display: block;
-  width: 100%;
-  max-width: 240px;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   font-size: 14px;
+  background: #fff;
 `;
-const Dot = styled.span`
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
 `;
-const RowInline = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-const RowBetween = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 16px;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-const GridThree = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 160px;
-  gap: 14px;
-  align-items: end;
-  justify-items: start;
-`;
+
 const Actions = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: 24px; /* extra space från All Day */
 `;
+
 const LeftGroup = styled.div`
   display: flex;
   gap: 8px;
 `;
+
 const RightGroup = styled.div`
   display: flex;
   gap: 8px;
 `;
-const Primary = styled.button`
-  background: #2563eb;
+
+const Primary = styled.button<{ disabled?: boolean }>`
+  background: ${p => (p.disabled ? "#a78bfa" : "#6d28d9")}; /* purple Save */
   color: #fff;
   border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-`;
-const Danger = styled(Primary)`
-  background: #dc3545;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: ${p => (p.disabled ? "not-allowed" : "pointer")};
+  transition: background 0.2s ease;
+  &:hover {
+    background: ${p => (p.disabled ? "#a78bfa" : "#5b21b6")};
+  }
 `;
 
-/* Switch – stabilt mått och korrekt thumb-position */
+const Danger = styled(Primary)`
+  background: #dc3545;
+  &:hover {
+    background: #b91c1c;
+  }
+`;
+
+/* Toggles – gröna när aktiva */
 const Switch = styled.div<{ $checked: boolean }>`
   width: 48px;
   height: 26px;
   border-radius: 999px;
-  background: ${p => (p.$checked ? "#2563eb" : "#e5e7eb")};
+  background: ${p => (p.$checked ? "#6d28d9" : "#e5e7eb")};
   position: relative;
   cursor: pointer;
-  border: 1px solid ${p => (p.$checked ? "#1e40af" : "#e5e7eb")};
+  border: 1px solid ${p => (p.$checked ? "#6d28d9" : "#e5e7eb")};
   transition: background 140ms ease, border-color 140ms ease;
 `;
+
 const SwitchThumb = styled.span<{ $checked: boolean }>`
   position: absolute;
   top: 50%;
