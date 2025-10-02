@@ -53,7 +53,7 @@ export default function LoginCardComponent({
               data-testid="email-input"
               type="email"
               value={email}
-              placeholder="Enter email"
+              placeholder="123@example.com"
               onChange={handleEmailChange}
             />
           </InputGroup>
