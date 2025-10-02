@@ -56,3 +56,5 @@ jobs:
 
       - name: Run Cypress (start-server-and-test)
         run: npm run test:e2e:ci
+        env:
+          NODE_OPTIONS: --import=tsx
