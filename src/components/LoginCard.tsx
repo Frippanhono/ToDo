@@ -40,7 +40,10 @@ export default function LoginCardComponent({
   return (
     <Container>
       <LoginCard>
-        <Title data-testid="login-title">Login</Title>
+        <Header>
+          <LockIcon aria-hidden="true" />
+          <Title data-testid="login-title">Login</Title>
+        </Header>
         <Form noValidate onSubmit={handleSubmit}>
           <InputGroup>
             <Label htmlFor="email">Email</Label>
@@ -67,27 +70,57 @@ export default function LoginCardComponent({
 const styled = styledComponents.default;
 
 const Container = styled.div`
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #011957 0%, #214e9c 100%);
 `;
 
 const LoginCard = styled.div`
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #fff;
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
+  padding: 28px 26px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+`;
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
 `;
 
 const Title = styled.h2`
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #333;
-  margin-top: 0;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+`;
+
+interface LockIconProps extends React.SVGProps<SVGSVGElement> {
+  className?: string;
+}
+
+const LockIcon = styled(({ className, ...props }: LockIconProps) => (
+  <svg
+    className={className}
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    {...props}
+  >
+    <rect x="3" y="11" width="18" height="10" rx="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+))`
+  color: #111827;
 `;
 
 const Form = styled.form`
@@ -96,67 +129,71 @@ const Form = styled.form`
 `;
 
 const InputGroup = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 14px;
 `;
 
 const Label = styled.label`
   display: block;
-  margin-bottom: 0.5rem;
-  color: #555;
+  margin: 0 0 6px;
+  color: #4b5563;
   font-weight: 500;
+  font-size: 0.9rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s;
   box-sizing: border-box;
+  background: #ffffff;
 
   &:focus {
-    border-color: #007bff;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
   }
 
   &::placeholder {
-    color: #999;
+    color: #9ca3af;
   }
 `;
 
 const Button = styled.button`
   width: 100%;
-  padding: 0.75rem;
-  background-color: #007bff;
-  color: white;
+  padding: 10px 12px;
+  margin-top: 4px;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
   cursor: pointer;
-  transition: background-color 0.2s;
+  background: #5b3cc4;
+  transition: filter 0.18s ease, transform 0.02s ease;
 
   &:hover {
-    background-color: #0056b3;
+    filter: brightness(0.95);
   }
 
   &:active {
-    background-color: #004494;
+    transform: translateY(0.5px);
   }
 
   &:disabled {
-    background-color: #6c757d;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 `;
 
 const ErrorMessage = styled.div`
-  color: #dc3545;
+  color: #b91c1c;
   font-size: 0.875rem;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
+  margin: 6px 0 8px;
+  padding: 8px 10px;
+  background-color: #fef2f2;
+  border: 1px solid #fee2e2;
+  border-radius: 6px;
   text-align: center;
 `;
