@@ -202,6 +202,12 @@ export default function CalendarView({
                 day: "Day",
               }}
               eventDisplay="block"
+              /* NYTT: 24h på tidsaxeln */
+              slotLabelFormat={{
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              }}
               eventTimeFormat={{
                 hour: "2-digit",
                 minute: "2-digit",
