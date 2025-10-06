@@ -7,9 +7,11 @@ import * as styledComponents from "styled-components";
 
 import {
   addTask,
+  deleteTask, // NY: ta bort i storage vid onDelete
   getAllTasks,
   Task,
   toggleTaskCompleted,
+  updateTask, // NY: uppdaterar i storage
 } from "../controllers/taskController";
 import { CATEGORY_COLORS, CategoryKey } from "../utils/categories";
 import { toCalendarFromTask, toTaskFromCalendar } from "../utils/toTaskAdapter";
@@ -27,7 +29,6 @@ export default function CalendarView({
   onLogout,
 }: CalendarViewProps) {
   const [events, setEvents] = useState<any[]>([]);
-
   // --- Form-state för AddTaskCard ---
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState(() =>
@@ -35,14 +36,17 @@ export default function CalendarView({
   );
   const [newTime, setNewTime] = useState("");
   const [newAllDay, setNewAllDay] = useState(true);
-  const [newCategory, setNewCategory] = useState<CategoryKey>("work"); // default none
+  const [newCategory, setNewCategory] = useState<CategoryKey>("home"); // default som testet väntar sig
 
+  // Overlay-selection (backcompat + extendedProps)
   const [selectedEvent, setSelectedEvent] = useState<{
     id: string;
     title: string;
     start: string;
     allDay: boolean;
-    category: CategoryKey;
+    category?: CategoryKey;
+    completed?: boolean;
+    extendedProps: { category: CategoryKey; done: boolean };
   } | null>(null);
 
   const [activeCategory, setActiveCategory] = useState<CategoryKey | "all">(
@@ -52,20 +56,17 @@ export default function CalendarView({
 
   const visibleEvents = useMemo(() => {
     let list = events;
-
     if (activeCategory !== "all") {
       list = list.filter(
         (e: any) => e?.extendedProps?.category === activeCategory
       );
     }
-
     if (statusFilter !== "all") {
       const wantDone = statusFilter === "completed";
       list = list.filter(
         (e: any) => Boolean(e?.extendedProps?.done) === wantDone
       );
     }
-
     return list;
   }, [events, activeCategory, statusFilter]);
 
@@ -82,38 +83,44 @@ export default function CalendarView({
     });
 
     if (result.success) {
-      // Refresh events from localStorage
       loadEventsFromStorage();
-
       setNewTitle("");
       setNewTime("");
       setNewAllDay(true);
       setNewDate(new Date().toISOString().slice(0, 10));
-      setNewCategory("work");
+      setNewCategory("home");
     } else {
       console.error("Failed to add task:", result.error);
     }
   };
 
-  // canSubmit – kräv vald kategori
   const canSubmit = newTitle.trim().length > 0 && !!newDate;
 
-  function isValidCategory(raw: string | undefined): boolean {
-    return raw !== undefined && Object.keys(CATEGORY_COLORS).includes(raw);
+  function isValidCategory(raw: string | undefined): raw is CategoryKey {
+    return !!raw && (Object.keys(CATEGORY_COLORS) as string[]).includes(raw);
   }
 
   const loadEventsFromStorage = useCallback(async () => {
     const tasks = (await getAllTasks(userEmail)) || [];
+
+    for (const t of tasks) {
+      if (!t.color) {
+        const cat = (
+          isValidCategory(t.category as string)
+            ? (t.category as CategoryKey)
+            : "personal"
+        ) as CategoryKey;
+        const color = CATEGORY_COLORS[cat] ?? "#111827";
+        updateTask(userEmail, t.id, { color });
+      }
+    }
+
     const calendarEvents = tasks.map(task => {
       const raw = task.category as string | undefined;
       const category: CategoryKey = isValidCategory(raw)
         ? (raw as CategoryKey)
         : "personal";
-
-      // Use gray color for completed tasks, otherwise use category color
-      const backgroundColor = task.completed
-        ? "#6b7280"
-        : CATEGORY_COLORS[category];
+      const backgroundColor = task.color ?? CATEGORY_COLORS[category]; // låst färg
 
       return {
         id: task.id.toString(),
@@ -123,7 +130,9 @@ export default function CalendarView({
           : `${task.date}T${task.time || "09:00"}:00`,
         backgroundColor,
         allDay: task.allDay || false,
-        extendedProps: { category, done: task.completed },
+        category,
+        completed: !!task.completed,
+        extendedProps: { category, done: !!task.completed },
       };
     });
     setEvents(calendarEvents);
@@ -141,7 +150,35 @@ export default function CalendarView({
       start: e.startStr,
       allDay: e.allDay,
       category: e.extendedProps?.category as CategoryKey,
+      completed: Boolean(e.extendedProps?.done),
+      extendedProps: {
+        category: e.extendedProps?.category as CategoryKey,
+        done: Boolean(e.extendedProps?.done),
+      },
     });
+  };
+
+  const handleToggleComplete = () => {
+    if (!selectedEvent) return;
+    const idNum = Number(selectedEvent.id);
+    const res = toggleTaskCompleted(userEmail, idNum);
+    if (!res.success) {
+      console.error("Failed to toggle task completion:", res.error);
+      return;
+    }
+    loadEventsFromStorage();
+    setSelectedEvent(prev =>
+      prev
+        ? {
+            ...prev,
+            completed: !prev.completed,
+            extendedProps: {
+              ...prev.extendedProps,
+              done: !prev.extendedProps.done,
+            },
+          }
+        : prev
+    );
   };
 
   return (
@@ -202,7 +239,6 @@ export default function CalendarView({
                 day: "Day",
               }}
               eventDisplay="block"
-              /* NYTT: 24h på tidsaxeln */
               slotLabelFormat={{
                 hour: "2-digit",
                 minute: "2-digit",
@@ -213,17 +249,24 @@ export default function CalendarView({
                 minute: "2-digit",
                 hour12: false,
               }}
-              eventTextColor="#fff"
               eventClick={handleEventClick}
+              eventClassNames={arg =>
+                arg.event.extendedProps?.done ? ["task-done"] : []
+              }
+              eventTextColor="#fff"
               eventDidMount={arg => {
+                // Testattribut för e2e
                 arg.el.setAttribute("data-testid", "fc-event");
                 arg.el.setAttribute("data-event-title", arg.event.title);
 
-                // ADDED: tona ner & strike-through om done
-                if (arg.event.extendedProps?.done) {
-                  arg.el.style.textDecoration = "line-through";
-                  arg.el.style.opacity = "0.8";
-                }
+                // Cypress-vänliga attribut
+                const category =
+                  arg.event.extendedProps?.category ??
+                  (arg.event as any).category;
+                const done = Boolean(arg.event.extendedProps?.done);
+                if (category)
+                  arg.el.setAttribute("data-category", String(category));
+                arg.el.setAttribute("data-done", String(done));
               }}
             />
           </CalendarCard>
@@ -232,33 +275,45 @@ export default function CalendarView({
 
       {selectedEvent && (
         <TaskOverlay
-          event={toTaskFromCalendar(selectedEvent)}
+          event={toTaskFromCalendar({
+            ...selectedEvent,
+            category: selectedEvent.category ?? "personal",
+          })}
           onClose={() => setSelectedEvent(null)}
           onSave={patch => {
-            setEvents(prev => {
-              return prev.map(ev => {
+            updateTask(userEmail, Number(selectedEvent.id), patch);
+
+            setEvents(prev =>
+              prev.map(ev => {
                 if (ev.id !== selectedEvent.id) return ev;
                 const nextTask: Task = {
-                  ...toTaskFromCalendar(ev),
+                  ...toTaskFromCalendar({
+                    ...ev,
+                    category: ev.category ?? "personal",
+                  }),
                   ...patch,
                 };
                 return toCalendarFromTask(nextTask);
-              });
-            });
+              })
+            );
+
             setSelectedEvent(null);
+            loadEventsFromStorage();
           }}
-          onToggleComplete={() => {
-            const idNum = Number(selectedEvent?.id);
-            const res = toggleTaskCompleted(userEmail, idNum);
-            if (res.success) {
-              loadEventsFromStorage();
-            } else {
-              console.error("Failed to toggle task completion:", res.error);
-            }
-          }}
+          onToggleComplete={handleToggleComplete}
           onDelete={() => {
-            setEvents(prev => prev.filter(ev => ev.id !== selectedEvent?.id));
+            if (!selectedEvent) return;
+
+            const res = deleteTask(userEmail, Number(selectedEvent.id));
+            if (!res.success) {
+              console.error("Failed to delete task:", res.error);
+              return;
+            }
+
+            setEvents(prev => prev.filter(ev => ev.id !== selectedEvent.id));
             setSelectedEvent(null);
+
+            loadEventsFromStorage();
           }}
         />
       )}
@@ -299,7 +354,7 @@ const HeaderCard = styled.header`
 
 const Brand = styled.div`
   display: flex;
-  flex-direction: column; /* ikon+titel på första raden, email under */
+  flex-direction: column;
   gap: 4px;
 
   .titleRow {
@@ -343,8 +398,6 @@ const LogoutButton = styled.button`
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-
-  /* för ikon + text */
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -377,7 +430,6 @@ const CalendarCard = styled.div`
   padding: 10px;
   box-shadow: 0 4px 20px rgba(2, 8, 23, 0.06);
 
-  /* ------- FullCalendar base tokens ------- */
   .fc {
     --fc-border-color: #eef2f6;
     --fc-page-bg-color: #ffffff;
@@ -389,7 +441,50 @@ const CalendarCard = styled.div`
     --chip-radius: 10px;
   }
 
-  /* Toolbar */
+  /* ——— Befintlig strikethrough, behåll ——— */
+  /* .task-done,
+.task-done .fc-event-main,
+.task-done .fc-event-title,
+.task-done .fc-event-main-frame,
+.task-done .fc-daygrid-event,
+.task-done .fc-timegrid-event {
+  text-decoration: line-through !important;
+} */
+
+  /* ——— NY STYLING: gör completed tydligare, endast CSS ——— */
+  .task-done {
+    position: relative;
+    opacity: 0.6;
+    filter: grayscale(0.15);
+  }
+
+  .task-done .fc-event-title::before {
+    content: "✔";
+    font-weight: 900;
+    margin-right: 6px;
+    display: inline-block;
+    transform: translateY(-1px);
+    color: #000000ff;
+  }
+
+  .task-done::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.14) 0 6px,
+      rgba(255, 255, 255, 0) 6px 12px
+    );
+    border-radius: inherit;
+  }
+
+  .task-done .fc-event-title,
+  .task-done .fc-event-time {
+    color: #ffffff !important;
+  }
+
   .fc .fc-toolbar.fc-header-toolbar {
     padding: 10px 12px 12px;
     gap: 12px;
@@ -400,7 +495,6 @@ const CalendarCard = styled.div`
     color: #0f172a;
     letter-spacing: 0.2px;
   }
-  /* segmenterade knappar till höger */
   .fc .fc-toolbar-chunk:last-child {
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
@@ -429,7 +523,6 @@ const CalendarCard = styled.div`
     color: #fff;
   }
 
-  /* ---------------- Day headers ---------------- */
   .fc .fc-col-header-cell {
     background: #fff;
     border-bottom: 1px solid #eef2f6;
@@ -444,8 +537,6 @@ const CalendarCard = styled.div`
     font-weight: 600;
   }
 
-  /* ---------------- Body + slots ---------------- */
-  /* svag “zebra” i timraderna */
   .fc .fc-timegrid-slot {
     background-image: linear-gradient(to right, transparent 0 100%),
       repeating-linear-gradient(
@@ -456,34 +547,28 @@ const CalendarCard = styled.div`
         rgba(148, 163, 184, 0.1) 45px
       );
   }
-
-  /* helg-toning */
   .fc-day-sat .fc-timegrid-col-frame,
-  .fc-day-sun .fc-timegrid-col-frame {
-    background: #fafafa;
-  }
+  .fc-day-sun .fc-timegrid-col-frame,
   .fc-day-sat,
   .fc-day-sun {
     background: #fafafa;
   }
 
-  /* ---------------- Events (chips) ---------------- */
   .fc .fc-event,
   .fc .fc-timegrid-event {
     border: 0;
     box-shadow: 0 6px 14px rgba(2, 8, 23, 0.15);
     font-weight: 700;
-    margin-bottom: 2px; /* lite avstånd mellan flera events på samma dag/timme */
+    margin-bottom: 2px;
   }
   .fc .fc-timegrid-event-harness-inset .fc-timegrid-event {
-    margin: 4px 6px; /* lite luft runt */
+    margin: 4px 6px;
   }
   .fc .fc-daygrid-event {
     padding: 6px 8px;
     font-weight: 700;
     color: var(--fc-event-text-color) !important;
   }
-  /* Hover/focus lyft */
   .fc .fc-event:hover {
     filter: brightness(1.03);
     transform: translateY(-1px);
