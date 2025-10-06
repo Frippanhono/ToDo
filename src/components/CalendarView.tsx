@@ -36,7 +36,7 @@ export default function CalendarView({
   );
   const [newTime, setNewTime] = useState("");
   const [newAllDay, setNewAllDay] = useState(true);
-  const [newCategory, setNewCategory] = useState<CategoryKey>("home"); // default som testet väntar sig
+  const [newCategory, setNewCategory] = useState<CategoryKey | "">(""); // börjar med placeholder
 
   // Overlay-selection (backcompat + extendedProps)
   const [selectedEvent, setSelectedEvent] = useState<{
@@ -73,13 +73,13 @@ export default function CalendarView({
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     const title = newTitle.trim();
-    if (!title || !newDate) return;
+    if (!title || !newDate || !newCategory) return; // Kräv att kategori är vald
 
     const result = addTask(userEmail, title, {
       date: newDate,
       time: newTime || undefined,
       allDay: newAllDay || !newTime,
-      category: newCategory,
+      category: newCategory as CategoryKey,
     });
 
     if (result.success) {
@@ -88,13 +88,13 @@ export default function CalendarView({
       setNewTime("");
       setNewAllDay(true);
       setNewDate(new Date().toISOString().slice(0, 10));
-      setNewCategory("home");
+      setNewCategory("");
     } else {
       console.error("Failed to add task:", result.error);
     }
   };
 
-  const canSubmit = newTitle.trim().length > 0 && !!newDate;
+  const canSubmit = newTitle.trim().length > 0 && !!newDate && !!newCategory;
 
   function isValidCategory(raw: string | undefined): raw is CategoryKey {
     return !!raw && (Object.keys(CATEGORY_COLORS) as string[]).includes(raw);
@@ -281,7 +281,14 @@ export default function CalendarView({
           })}
           onClose={() => setSelectedEvent(null)}
           onSave={patch => {
-            updateTask(userEmail, Number(selectedEvent.id), patch);
+            // Om kategorin ändras, uppdatera också färgen
+            const updatedPatch = { ...patch };
+            if (patch.category) {
+              updatedPatch.color =
+                CATEGORY_COLORS[patch.category as CategoryKey];
+            }
+
+            updateTask(userEmail, Number(selectedEvent.id), updatedPatch);
 
             setEvents(prev =>
               prev.map(ev => {
@@ -291,7 +298,7 @@ export default function CalendarView({
                     ...ev,
                     category: ev.category ?? "personal",
                   }),
-                  ...patch,
+                  ...updatedPatch,
                 };
                 return toCalendarFromTask(nextTask);
               })
