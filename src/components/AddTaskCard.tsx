@@ -13,8 +13,8 @@ interface AddTaskCardProps {
   newAllDay: boolean;
   setNewAllDay: (value: boolean) => void;
 
-  newCategory: CategoryKey;
-  setNewCategory: (value: CategoryKey) => void;
+  newCategory: CategoryKey | "";
+  setNewCategory: (value: CategoryKey | "") => void;
 
   canSubmit: boolean;
   handleAddTask: (e: React.FormEvent) => void;
@@ -130,9 +130,12 @@ export default function AddTaskCard({
             value={newCategory}
             aria-invalid={false}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-              setNewCategory(e.target.value as CategoryKey)
+              setNewCategory(e.target.value as CategoryKey | "")
             } // <-- ändrat
           >
+            <option value="" disabled>
+              Select category
+            </option>
             {CATEGORY_OPTIONS
               // om CATEGORY_OPTIONS råkar innehålla "none", visa inte den i listan
               .filter(opt => opt.key !== ("none" as CategoryKey))

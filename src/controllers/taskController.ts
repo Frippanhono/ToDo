@@ -5,6 +5,7 @@ import {
   toggleTaskCompletion,
   updateTask as updateTaskInStorage,
 } from "../services/localStorage";
+import { CATEGORY_COLORS, CategoryKey } from "../utils/categories";
 
 export interface Task {
   id: number;
@@ -15,6 +16,7 @@ export interface Task {
   time?: string;
   allDay?: boolean;
   category?: string;
+  color?: string; // lås event-färgen vid skapande
 }
 
 export function addTask(
@@ -28,8 +30,11 @@ export function addTask(
     allDay?: boolean;
   } = {}
 ): { success: boolean; task?: Task; error?: string } {
-  const category = opts.category ?? "none";
+  const category = (opts.category ?? "none") as CategoryKey;
   const date = opts.date ?? new Date().toISOString().split("T")[0];
+
+  // Välj färg EN gång vid skapande och spara på tasken
+  const color = CATEGORY_COLORS[category] ?? "#111827";
 
   const newTask: Task = {
     id: 0, // Will be set by localStorage service
@@ -40,6 +45,7 @@ export function addTask(
     date,
     time: opts.time,
     allDay: opts.allDay,
+    color,
   };
 
   return addTaskToStorage(email, newTask);
@@ -58,7 +64,6 @@ export function updateTask(
     }
     patch.title = trimmed;
   }
-
   return updateTaskInStorage(email, id, patch);
 }
 
@@ -97,7 +102,6 @@ export async function filterTodo(email: string): Promise<Task[]> {
 export async function sortByTitle(email: string): Promise<Task[]> {
   const tasks = await getUserTasks(email);
   if (!tasks) return [];
-
   return [...tasks].sort(
     (a, b) => a.title.localeCompare(b.title) || a.id - b.id
   );
@@ -106,7 +110,6 @@ export async function sortByTitle(email: string): Promise<Task[]> {
 export async function sortByDateAsc(email: string): Promise<Task[]> {
   const tasks = await getUserTasks(email);
   if (!tasks) return [];
-
   return [...tasks].sort(
     (a, b) =>
       new Date(a.date).getTime() - new Date(b.date).getTime() || a.id - b.id
@@ -116,7 +119,6 @@ export async function sortByDateAsc(email: string): Promise<Task[]> {
 export async function sortByDateDesc(email: string): Promise<Task[]> {
   const tasks = await getUserTasks(email);
   if (!tasks) return [];
-
   return [...tasks].sort(
     (a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime() || a.id - b.id

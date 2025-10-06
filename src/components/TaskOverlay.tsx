@@ -1,4 +1,3 @@
-// TaskOverlay.tsx
 import React, { useState } from "react";
 import * as styledComponents from "styled-components";
 
@@ -23,8 +22,8 @@ export default function TaskOverlay({
   onDelete,
 }: OverlayProps) {
   const [title, setTitle] = useState(event.title);
-  const [category, setCategory] = useState<CategoryKey>(
-    (event.category as CategoryKey) ?? "none"
+  const [category, setCategory] = useState<CategoryKey | "">(
+    (event.category as CategoryKey) ?? ""
   );
   const [date, setDate] = useState<string>(event.date ?? "");
   const [time, setTime] = useState<string>(event.time ?? "");
@@ -41,9 +40,10 @@ export default function TaskOverlay({
     const trimmed = title.trim();
     if (!trimmed) return;
     if (time && !date) return;
+    if (!category) return; // Kräv att kategori är vald
     onSave({
       title: trimmed,
-      category,
+      category: category as CategoryKey,
       date,
       time: allDay ? undefined : time || undefined,
       allDay,
@@ -51,7 +51,7 @@ export default function TaskOverlay({
     });
   };
 
-  const isSaveDisabled = !title.trim() || (!!time && !date);
+  const isSaveDisabled = !title.trim() || (!!time && !date) || !category;
 
   return (
     <Backdrop
@@ -144,8 +144,11 @@ export default function TaskOverlay({
             id="overlay-category"
             data-testid="overlay-category"
             value={category}
-            onChange={e => setCategory(e.target.value as CategoryKey)}
+            onChange={e => setCategory(e.target.value as CategoryKey | "")}
           >
+            <option value="" disabled>
+              Select category
+            </option>
             {CATEGORY_OPTIONS.filter(
               opt => opt.key !== ("none" as CategoryKey)
             ).map(opt => (
@@ -270,7 +273,7 @@ const Field = styled.div<{ $disabled?: boolean }>`
 
 const TitleField = styled(Field)`
   &[data-completed="true"] input {
-    text-decoration: line-through;
+    /*text-decoration: line-through;*/
     color: #6b7280; /* valfritt: dämpa färgen när completed */
   }
 `;
