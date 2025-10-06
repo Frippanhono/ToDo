@@ -448,6 +448,28 @@ const CalendarCard = styled.div`
     --chip-radius: 10px;
   }
 
+  /* Gör FullCalendar header och knappar mer responsiva */
+  @media (max-width: 600px) {
+    .fc .fc-toolbar.fc-header-toolbar {
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px 4px 8px;
+    }
+    .fc .fc-toolbar-chunk {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .fc .fc-button {
+      padding: 4px 8px;
+      font-size: 13px;
+      min-width: 70px;
+    }
+    .fc .fc-toolbar-title {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+  }
+
   /* ——— Befintlig strikethrough, behåll ——— */
   /* .task-done,
 .task-done .fc-event-main,

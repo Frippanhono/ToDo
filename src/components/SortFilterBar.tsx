@@ -74,4 +74,9 @@ const Select = styled.select`
   border: 1px solid #ddd;
   border-radius: 8px;
   background: #fff;
+  min-width: 120px;
+  @media (max-width: 600px) {
+    width: 100%;
+    min-width: unset;
+  }
 `;
