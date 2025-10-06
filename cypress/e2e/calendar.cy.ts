@@ -29,6 +29,7 @@ describe("Calendar view", () => {
     cy.findByTestId("title-input").type("My Cypress Task");
     cy.findByTestId("date-input").clear();
     cy.findByTestId("date-input").type("2025-09-30");
+    cy.findByTestId("add-task-category-filter").select("work");
     cy.findByRole("button", { name: /add/i }).click();
 
     cy.get('[data-testid="fc-event"]', { timeout: 8000 }).should(
@@ -42,6 +43,7 @@ describe("Calendar view", () => {
     cy.findByTestId("title-input").type("Seed Task");
     cy.findByTestId("date-input").clear();
     cy.findByTestId("date-input").type("2025-09-30");
+    cy.findByTestId("add-task-category-filter").select("home");
     cy.findByRole("button", { name: /add/i }).click();
 
     // 2) Markera som completed via overlay
@@ -96,6 +98,7 @@ describe("Calendar view", () => {
     cy.findByTestId("title-input").type("Overlay Test");
     cy.findByTestId("date-input").clear();
     cy.findByTestId("date-input").type("2025-09-30");
+    cy.findByTestId("add-task-category-filter").select("personal");
     cy.findByRole("button", { name: /add/i }).click();
 
     // 2) Öppna overlay
@@ -137,6 +140,7 @@ describe("Calendar view", () => {
     cy.findByTestId("title-input").type("Cat change");
     // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.findByTestId("date-input").clear().type("2025-10-02");
+    cy.findByTestId("add-task-category-filter").select("work");
     cy.findByRole("button", { name: /add/i }).click();
 
     // Öppna overlay
@@ -166,6 +170,7 @@ describe("Calendar view", () => {
     cy.findByTestId("title-input").type("Complete me");
     // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.findByTestId("date-input").clear().type("2025-10-02");
+    cy.findByTestId("add-task-category-filter").select("health");
     cy.findByRole("button", { name: /add/i }).click();
 
     // Öppna overlay och toggla Completed
@@ -191,6 +196,7 @@ describe("Calendar view", () => {
     cy.findByTestId("title-input").type("DateTime task");
     // eslint-disable-next-line cypress/unsafe-to-chain-command
     cy.findByTestId("date-input").clear().type("2025-10-02");
+    cy.findByTestId("add-task-category-filter").select("family");
     cy.findByRole("button", { name: /add/i }).click();
 
     // 1) Öppna overlay, slå AV All Day, skriv tid, spara
