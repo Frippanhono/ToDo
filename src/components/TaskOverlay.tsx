@@ -1,4 +1,3 @@
-// TaskOverlay.tsx
 import React, { useState } from "react";
 import * as styledComponents from "styled-components";
 
@@ -270,7 +269,7 @@ const Field = styled.div<{ $disabled?: boolean }>`
 
 const TitleField = styled(Field)`
   &[data-completed="true"] input {
-    text-decoration: line-through;
+    /*text-decoration: line-through;*/
     color: #6b7280; /* valfritt: dämpa färgen när completed */
   }
 `;
