@@ -1,6 +1,6 @@
 // src/utils/toTaskAdapter.ts
 import { Task } from "../controllers/taskController";
-import { CategoryKey } from "../utils/categories";
+import { CATEGORY_COLORS, CategoryKey } from "../utils/categories";
 
 export interface CalendarEvent {
   id: string;
@@ -8,7 +8,8 @@ export interface CalendarEvent {
   start: string;
   allDay: boolean;
   category: CategoryKey;
-  completed?: boolean; // ⬅️ lägg till
+  completed?: boolean;
+  backgroundColor?: string;
 }
 
 export function toTaskFromCalendar(ev: CalendarEvent): Task {
@@ -24,12 +25,14 @@ export function toTaskFromCalendar(ev: CalendarEvent): Task {
 }
 
 export function toCalendarFromTask(task: Task): CalendarEvent {
+  const category = (task.category as CategoryKey) ?? "personal";
   return {
     id: String(task.id),
     title: task.title,
     start: task.time ? `${task.date}T${task.time}` : `${task.date}T00:00:00`,
     allDay: !!task.allDay,
-    category: (task.category as CategoryKey) ?? "none",
-    completed: task.completed, // ⬅️ skicka tillbaka completed till kalendern
+    category,
+    completed: task.completed,
+    backgroundColor: task.color ?? CATEGORY_COLORS[category],
   };
 }
