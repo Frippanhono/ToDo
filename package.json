@@ -19,7 +19,9 @@
     "test:unit": "jest",
     "test:unit:ci": "jest --ci --runInBand --passWithNoTests",
     "test:unit:coverage": "jest --silent --watchAll=false --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "lint-staged": {
     "*.{css,md,json}": [
@@ -84,6 +86,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-testing-library": "^5.5.1",
+    "gh-pages": "^6.3.0",
     "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^28.1.1",
