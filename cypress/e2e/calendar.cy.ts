@@ -8,10 +8,9 @@ describe("Calendar view", () => {
         win.localStorage.clear();
       },
     });
-
-    cy.findByTestId("email-input").type("test@gmail.com");
+    cy.findByTestId("login-title").should("be.visible");
+    cy.findByTestId("email-input").type("test@gmail.com", { delay: 100 });
     cy.findByRole("button", { name: /login/i }).click();
-
     // Säkerställ att kalendern är renderad
     cy.findByTestId("calendar-title").should("be.visible");
   });
@@ -26,9 +25,9 @@ describe("Calendar view", () => {
   });
 
   it("can add a new task", () => {
-    cy.findByTestId("title-input").type("My Cypress Task");
+    cy.findByTestId("title-input").type("My Cypress Task", { delay: 100 });
     cy.findByTestId("date-input").clear();
-    cy.findByTestId("date-input").type("2025-09-30");
+    cy.findByTestId("date-input").type("2025-09-30", { delay: 100 });
     cy.findByTestId("add-task-category-filter").select("work");
     cy.findByRole("button", { name: /add/i }).click();
 
