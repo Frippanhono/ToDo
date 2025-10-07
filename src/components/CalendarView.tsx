@@ -475,10 +475,35 @@ const CalendarCard = styled.div`
 .task-done .fc-event-main,
 .task-done .fc-event-title,
 .task-done .fc-event-main-frame,
-.task-done .fc-daygrid-event,
-.task-done .fc-timegrid-event {
-  text-decoration: line-through !important;
-} */
+      /* Minska fontstorlek på task-kort och text när skärmen är liten */
+  .fc .fc-daygrid-event {
+    font-size: 10px !important;
+    padding: 2px 2px !important;
+  }
+  .fc .fc-event-title {
+    font-size: 10px !important;
+    white-space: normal;
+  }
+  .fc .fc-event-time {
+    font-size: 9px !important;
+  }
+  .task-done .fc-daygrid-event,
+  @media (max-width: 400px) {
+    .fc .fc-daygrid-event {
+      font-size: 8px !important;
+      padding: 1px 1px !important;
+    }
+    .fc .fc-event-title {
+      font-size: 8px !important;
+    }
+    .fc .fc-event-time {
+      font-size: 7px !important;
+    }
+  }
+  .task-done .fc-timegrid-event {
+    text-decoration: line-through !important;
+  }
+  */
 
   /* ——— NY STYLING: gör completed tydligare, endast CSS ——— */
   .task-done {
