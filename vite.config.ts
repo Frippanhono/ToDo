@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [legacy(), react()],
+  base: "/ToDo/",
   resolve: {
     alias: {
       // for TypeScript path alias import like : @/x/y/z
