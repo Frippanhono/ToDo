@@ -98,7 +98,7 @@ const Title = styled.h2`
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #15ce2eff;
+  color: #111827;
 `;
 
 interface LockIconProps extends React.SVGProps<SVGSVGElement> {
