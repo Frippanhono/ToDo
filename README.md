@@ -1,90 +1,228 @@
-# React TypeScript template with Vite
+# 📅 ToDo Calendar App
 
-This is a [React](https://reactjs.org) + [TypeScript](https://www.typescriptlang.org/) boilerplate built with [Vite](https://vitejs.dev).
+A modern task management application with calendar view, built with React, TypeScript, and Vite. Allows users to create, organize, and manage their tasks in a visual and intuitive way.
 
-## What's inside?
+## ✨ Features
 
-- [ReactJS](https://reactjs.org)
-- [Vite](https://vitejs.dev)
-- [TypeScript](https://www.typescriptlang.org)
-- [Jest](https://jestjs.io)
-- [Testing Library](https://testing-library.com)
-- [Cypress](https://www.cypress.io)
-- [ESLint](https://eslint.org)
-- [Prettier](https://prettier.io)
-- [Polyfills](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#readme)
+- **📅 Calendar View**: Complete task visualization in calendar format using FullCalendar
+- **🔐 Simple Authentication**: Email-based login system
+- **📝 Task Management**: Create, edit, complete, and delete tasks
+- **🏷️ Categorization**: Organize tasks by categories with distinctive colors
+- **🔍 Filters and Sorting**: Filter by category and status (completed/pending)
+- **💾 Local Persistence**: Data storage in localStorage
+- **📱 Responsive Design**: Interface adapted for mobile and desktop devices
+- **🎨 Modern UI**: Attractive design with gradients and styled components
 
-## Getting started
+## 🛠️ Technologies Used
 
-1. Create the project.
+### Frontend
+
+- **React 18** - User interface library
+- **TypeScript** - Static typing for JavaScript
+- **Vite** - Fast build tool
+- **Styled Components** - CSS-in-JS for styling
+- **FullCalendar** - Interactive calendar component
+- **Lucide React** - Modern icons
+
+### Testing
+
+- **Jest** - Unit testing framework
+- **React Testing Library** - React component testing
+- **Cypress** - End-to-end testing
+
+### Development
+
+- **ESLint** - Linter for JavaScript/TypeScript
+- **Prettier** - Code formatter
+- **Husky** - Git hooks
+- **Commitizen** - Conventional commits
+
+## 🚀 Installation and Setup
+
+### Prerequisites
+
+- Node.js 20 or higher
+- npm
+
+### Installation Steps
+
+1. **Clone the repository**
 
    ```bash
-   npx degit fabien-ml/react-ts-vite-template my-app
+   git clone <repo-url>
+   cd todo
    ```
 
-2. Access the project directory.
+2. **Install dependencies**
 
    ```bash
-   cd my-app
+   npm ci
    ```
 
-3. Initialize a git repository.
+3. **Run in development mode**
 
-   ```bash
-   git init
-   ```
-
-4. Install dependencies.
-
-   ```bash
-   npm install
-   ```
-
-5. Start dev server with hot reload at http://localhost:3000.
    ```bash
    npm run dev
    ```
 
-## Recommended VS Code extensions
+4. **Open in browser**
+   - The application will be available at `http://localhost:5173`
 
-- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## 📋 Available Scripts
 
-## Other commands
-
-### Lint commands
+### Development
 
 ```bash
-npm run lint
+npm run dev          # Development server
+npm run build        # Production build
+npm run serve        # Preview server (port 3000)
 ```
 
-### Build commands
+### Testing
+
+```bash
+npm test                    # Run unit tests
+npm run test:unit:coverage  # Tests with coverage
+npm run test:e2e           # End-to-end tests (interactive)
+npm run test:e2e:ci        # End-to-end tests (headless)
+```
+
+### Code Quality
+
+```bash
+npm run lint        # Linting with ESLint
+npm run format      # Formatting with Prettier
+npm run typecheck   # TypeScript type checking
+```
+
+### Git
+
+```bash
+npm run commit      # Interactive commit with Commitizen
+```
+
+## 🏗️ Project Architecture
+
+```
+src/
+├── components/          # React components
+│   ├── AddTaskCard.tsx     # Form to add tasks
+│   ├── CalendarView.tsx    # Main calendar view
+│   ├── LoginCard.tsx       # Login component
+│   ├── SortFilterBar.tsx   # Filters and sorting bar
+│   ├── TaskOverlay.tsx     # Task editing modal
+│   └── tests/              # Component tests
+├── controllers/         # Business logic
+│   └── taskController.ts   # Task controller
+├── Model/              # Data models
+│   ├── Task.js            # Task model
+│   └── User.js            # User model
+├── services/           # Services
+│   └── localStorage.ts     # Local storage service
+├── utils/              # Utilities
+│   ├── auth.ts            # Authentication utilities
+│   ├── authService.ts     # Authentication service
+│   ├── categories.ts      # Categories configuration
+│   ├── Tasklist.ts        # Task manipulation functions
+│   └── toTaskAdapter.ts   # Data conversion adapters
+├── Data/               # Static data
+│   └── user_tasks.json     # Sample data
+├── assets/             # Static resources
+├── App.tsx             # Main component
+└── main.tsx            # Entry point
+```
+
+## 🎯 Main Features
+
+### Authentication
+
+- Simple email-based login
+- Session persistence in localStorage
+- Logout with data cleanup
+
+### Task Management
+
+- **Create**: Form with title, date, time, category, and description
+- **Edit**: Editing modal with all fields
+- **Complete**: Toggle completed/pending status
+- **Delete**: Confirmation and task deletion
+- **Categorize**: Category assignment with colors
+
+### Calendar View
+
+- **Monthly View**: General month overview
+- **Weekly View**: Detailed week view
+- **Daily View**: Specific day view
+- **Navigation**: Buttons to change dates
+- **Events**: Task visualization as events
+
+### Filters and Sorting
+
+- **By Category**: Filter tasks by specific category
+- **By Status**: Show completed, pending, or all tasks
+- **Sorting**: By date (ascending/descending) or title
+
+## 🎨 Available Categories
+
+- **Personal** - Personal tasks (Blue)
+- **Work** - Work tasks (Green)
+- **Study** - Academic tasks (Orange)
+- **Health** - Health-related tasks (Red)
+- **Home** - Household tasks (Purple)
+- **Other** - General category (Gray)
+
+## 🧪 Testing
+
+### Unit Tests (Jest + RTL)
+
+- React component tests
+- Utility function tests
+- Controller tests
+- Code coverage
+
+### End-to-End Tests (Cypress)
+
+- Complete user flow
+- Task creation and management
+- Calendar navigation
+- Filters and searches
+
+### Run Tests
+
+```bash
+# Unit tests
+npm test
+
+# Tests with coverage
+npm run test:unit:coverage
+
+# E2E tests (interactive)
+npm run test:e2e
+
+# E2E tests (CI)
+npm run test:e2e:ci
+```
+
+## 🚀 Deployment
+
+### Production Build
 
 ```bash
 npm run build
 ```
 
-### Run the app in production mode at http://localhost:3000.
+### Production Preview
 
 ```bash
 npm run serve
 ```
 
-### Test commands
+### GitHub Pages
 
-- Run unit tests and watch
-  ```bash
-  npm run test:unit
-  ```
-- Run unit tests with coverage
-  ```bash
-  npm run test:unit:coverage
-  ```
-- Run e2e tests
-  ```bash
-  npm run test:e2e
-  ```
+The project is configured for automatic deployment to GitHub Pages through GitHub Actions.
 
-## License
+---
 
-This project is licensed under the MIT License.
+**Thank you for using ToDo Calendar App!** 🎉
+
+If you find any issues or have suggestions, feel free to create an issue in the repository.
