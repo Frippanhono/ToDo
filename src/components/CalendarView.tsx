@@ -1,6 +1,7 @@
 import dayGridPlugin from "@fullcalendar/daygrid";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
 import { Calendar as CalendarIcon, LogOutIcon } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as styledComponents from "styled-components";
@@ -29,6 +30,16 @@ export default function CalendarView({
   onLogout,
 }: CalendarViewProps) {
   const [events, setEvents] = useState<any[]>([]);
+  // Hantera drag-and-drop event
+  const handleEventDrop = (info: any) => {
+    const { event } = info;
+    // Hämta task-id och nytt datum
+    const id = Number(event.id);
+    const newDate = event.startStr;
+    // Uppdatera taskens datum i storage
+    updateTask(userEmail, id, { date: newDate });
+    loadEventsFromStorage();
+  };
   // --- Form-state för AddTaskCard ---
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState(() =>
@@ -222,7 +233,9 @@ export default function CalendarView({
 
           <CalendarCard>
             <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin]}
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              editable={true}
+              eventDrop={handleEventDrop}
               initialView="dayGridMonth"
               headerToolbar={{
                 left: "prev,next today",
