@@ -182,6 +182,10 @@ const Card = styled.form`
   margin-bottom: 20px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   border: 1px solid #eef2f7;
+  @media (max-width: 560px) {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
 `;
 
 const CardHeader = styled.div`
@@ -190,6 +194,13 @@ const CardHeader = styled.div`
   align-items: center;
   column-gap: 10px;
   margin-bottom: 14px;
+  @media (max-width: 560px) {
+    margin-bottom: 8px;
+    column-gap: 6px;
+    h3 {
+      font-size: 16px;
+    }
+  }
 
   h3 {
     margin: 0;
@@ -211,6 +222,8 @@ const Row = styled.div`
   }
   @media (max-width: 560px) {
     grid-template-columns: 1fr;
+    column-gap: 10px;
+    row-gap: 10px;
   }
 `;
 
@@ -244,6 +257,10 @@ const Input = styled.input`
   color: #111827;
   outline: none;
   transition: box-shadow 120ms ease, border-color 120ms ease;
+  @media (max-width: 560px) {
+    padding: 8px 8px;
+    font-size: 13px;
+  }
 
   &::placeholder {
     color: #9ca3af;
@@ -272,6 +289,10 @@ const Select = styled.select`
   color: #111827;
   outline: none;
   transition: box-shadow 120ms ease, border-color 120ms ease;
+  @media (max-width: 560px) {
+    padding: 8px 8px;
+    font-size: 13px;
+  }
 
   &:focus {
     border-color: #2563eb;
@@ -326,6 +347,10 @@ const AddBtn = styled.button`
   font-size: 14px;
   letter-spacing: 0.2px;
   transition: transform 80ms ease, background 120ms ease, box-shadow 120ms ease;
+  @media (max-width: 560px) {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
 
   &:hover:not(:disabled) {
     background: #1d4ed8;
