@@ -349,6 +349,9 @@ const Container = styled.div`
   background: linear-gradient(135deg, #011957 0%, #214e9c 100%);
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto,
     "Helvetica Neue", Arial;
+  @media (max-width: 600px) {
+    padding: 8px;
+  }
 `;
 
 const HeaderCard = styled.header`
@@ -357,18 +360,26 @@ const HeaderCard = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 
   h1 {
     margin: 0;
     font-size: 24px;
     font-weight: 800;
     letter-spacing: 0.2px;
+    @media (max-width: 600px) {
+      font-size: 18px;
+    }
   }
 
   p {
     margin: 2px 0 0 0;
     opacity: 0.9;
     font-size: 13px;
+    @media (max-width: 600px) {
+      font-size: 11px;
+    }
   }
 `;
 
