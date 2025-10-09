@@ -2,6 +2,10 @@
 
 A modern task management application with calendar view, built with React, TypeScript, and Vite. Allows users to create, organize, and manage their tasks in a visual and intuitive way.
 
+## 🌐 Live Demo
+
+**[https://frippanhono.github.io/ToDo/](https://frippanhono.github.io/ToDo/)**
+
 ## ✨ Features
 
 - **📅 Calendar View**: Complete task visualization in calendar format using FullCalendar
@@ -220,6 +224,8 @@ npm run serve
 ### GitHub Pages
 
 The project is configured for automatic deployment to GitHub Pages through GitHub Actions.
+
+**Live site**: [https://frippanhono.github.io/ToDo/](https://frippanhono.github.io/ToDo/)
 
 ---
 
